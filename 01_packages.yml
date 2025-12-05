@@ -1,0 +1,25 @@
+--
+- name: Ground Software Enviromnent
+  hosts: localhost
+
+  tasks:
+    - name: Update apt cache
+      become_method: sudo
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install base packages
+      become_method: sudo
+      apt:
+        name:
+          - curl
+          - git
+
+    - name: Install snap packages
+      become_method: sudo
+      community.general.snap:
+        name:
+          - signal-desktop
+        classic: yes
+
