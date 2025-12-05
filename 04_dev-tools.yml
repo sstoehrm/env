@@ -1,0 +1,26 @@
+---
+- name: Ground Software Enviromnent
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Install VS Code
+      become_method: sudo
+      community.general.snap:
+        name: code
+        classic: yes
+
+    - name: Install OpenCode
+      become_method: sudo
+      community.general.snap:
+        name: opencode
+        classic: yes
+
+    - name: Install VS Code extensions
+      shell: |
+        code --install-extension ms-python.python
+      args:
+        executable: /bin/bash
+
