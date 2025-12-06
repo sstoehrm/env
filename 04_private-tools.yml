@@ -1,0 +1,53 @@
+---
+- name: Private Tools Setup
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Add Neovim PPA
+      become: yes
+      become_method: sudo
+      apt_repository:
+        repo: ppa:neovim-ppa/stable
+        state: present
+        update_cache: yes
+
+    - name: Install Neovim
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - neovim
+        state: present
+
+    - name: Check if LazyVim is already installed
+      stat:
+        path: "{{ user_home }}/.config/nvim"
+      register: lazyvim_check
+      changed_when: false
+
+    - name: Backup existing Neovim config if present
+      command: mv {{ user_home }}/.config/nvim {{ user_home }}/.config/nvim.bak
+      when: lazyvim_check.stat.exists
+      ignore_errors: yes
+
+    - name: Clone LazyVim starter configuration
+      git:
+        repo: 'https://github.com/LazyVim/starter'
+        dest: "{{ user_home }}/.config/nvim"
+        depth: 1
+      when: not lazyvim_check.stat.exists or lazyvim_check.stat.exists
+
+    - name: Remove .git folder from LazyVim config
+      file:
+        path: "{{ user_home }}/.config/nvim/.git"
+        state: absent
+
+    - name: Install lazygit
+      become: yes
+      become_method: sudo
+      community.general.snap:
+        name: lazygit
+        classic: yes
