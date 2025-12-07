@@ -151,3 +151,63 @@
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/']"
       args:
         executable: /bin/bash
+
+    - name: Install LazyVim dependencies via apt
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - build-essential
+          - ripgrep
+          - fzf
+          - fish
+          - luarocks
+        state: present
+        update_cache: yes
+
+    - name: Get latest fd version
+      shell: |
+        curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/'
+      register: fd_version
+      changed_when: false
+
+    - name: Download and install fd
+      shell: |
+        cd /tmp
+        VERSION="{{ fd_version.stdout }}"
+        curl -LO "https://github.com/sharkdp/fd/releases/latest/download/fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+        tar -xzf "fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+        mv "fd-${VERSION}-x86_64-unknown-linux-gnu/fd" {{ user_home }}/.local/bin/fd
+        chmod +x {{ user_home }}/.local/bin/fd
+        rm -rf "fd-${VERSION}-x86_64-unknown-linux-gnu" "fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+      args:
+        executable: /bin/bash
+
+    - name: Download and install ast-grep
+      shell: |
+        cd /tmp
+        curl -LO https://github.com/ast-grep/ast-grep/releases/latest/download/ast-grep-x86_64-unknown-linux-gnu.zip
+        unzip -o ast-grep-x86_64-unknown-linux-gnu.zip
+        chmod +x ast-grep
+        mv ast-grep {{ user_home }}/.local/bin/sg
+        rm -f ast-grep-x86_64-unknown-linux-gnu.zip
+      args:
+        executable: /bin/bash
+
+    - name: Verify tool installations
+      shell: |
+        echo "ripgrep: $(rg --version | head -n1)"
+        echo "fd: $({{ user_home }}/.local/bin/fd --version)"
+        echo "fzf: $(fzf --version)"
+        echo "fish: $(fish --version)"
+        echo "luarocks: $(luarocks --version | head -n1)"
+        echo "ast-grep: $({{ user_home }}/.local/bin/sg --version)"
+        echo "gcc: $(gcc --version | head -n1)"
+      args:
+        executable: /bin/bash
+      register: tool_versions
+      changed_when: false
+
+    - name: Display installed tool versions
+      debug:
+        msg: "{{ tool_versions.stdout_lines }}"
