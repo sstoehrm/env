@@ -35,7 +35,7 @@
 
     - name: Download latest Blockbench AppImage
       get_url:
-        url: "https://github.com/JannisX11/blockbench/releases/download/{{ blockbench_release.json.tag_name }}/Blockbench_x64_{{ blockbench_release.json.tag_name }}.AppImage"
+        url: "https://github.com/JannisX11/blockbench/releases/download/{{ blockbench_release.json.tag_name }}/Blockbench_{{ blockbench_release.json.tag_name | regex_replace('^v', '') }}.AppImage"
         dest: "{{ local_bin }}/blockbench"
         mode: '0755'
       when: not blockbench_check.stat.exists

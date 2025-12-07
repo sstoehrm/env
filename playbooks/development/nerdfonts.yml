@@ -1,0 +1,63 @@
+---
+- name: Nerd Fonts
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    fonts_dir: '{{ user_home }}/.local/share/fonts'
+    nerdfonts_version: 'v3.3.0'
+    fonts_to_install:
+      - FiraCode
+      - Hack
+      - JetBrainsMono
+      - Meslo
+
+  tasks:
+    - name: Ensure fonts directory exists
+      file:
+        path: "{{ fonts_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Nerd Fonts are already installed
+      find:
+        paths: "{{ fonts_dir }}"
+        patterns: "*Nerd*"
+      register: nerdfonts_check
+
+    - name: Download and install Nerd Fonts
+      block:
+        - name: Download {{ item }} Nerd Font
+          get_url:
+            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_version }}/{{ item }}.zip"
+            dest: "/tmp/{{ item }}.zip"
+            mode: '0644'
+          loop: "{{ fonts_to_install }}"
+
+        - name: Extract {{ item }} Nerd Font
+          unarchive:
+            src: "/tmp/{{ item }}.zip"
+            dest: "{{ fonts_dir }}"
+            remote_src: yes
+          loop: "{{ fonts_to_install }}"
+
+        - name: Clean up downloaded archives
+          file:
+            path: "/tmp/{{ item }}.zip"
+            state: absent
+          loop: "{{ fonts_to_install }}"
+
+        - name: Update font cache
+          command: fc-cache -fv
+          changed_when: false
+
+      when: nerdfonts_check.matched == 0
+
+    - name: Verify Nerd Fonts installation
+      shell: fc-list | grep -i "nerd" | wc -l
+      register: nerdfonts_count
+      changed_when: false
+
+    - name: Display Nerd Fonts count
+      debug:
+        msg: "{{ nerdfonts_count.stdout }} Nerd Fonts installed"
