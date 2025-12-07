@@ -28,32 +28,28 @@
 
     - name: Download latest Odin binary
       get_url:
-        url: "https://github.com/odin-lang/Odin/releases/latest/download/odin-ubuntu-amd64-{{ odin_release.json.tag_name }}.zip"
-        dest: /tmp/odin-latest.zip
+        url: "https://github.com/odin-lang/Odin/releases/download/{{ odin_release.json.tag_name }}/odin-linux-amd64-{{ odin_release.json.tag_name }}.tar.gz"
+        dest: /tmp/odin-latest.tar.gz
       when: not odin_check.stat.exists
 
     - name: Extract Odin binary
       unarchive:
-        src: /tmp/odin-latest.zip
-        dest: /tmp/
+        src: /tmp/odin-latest.tar.gz
+        dest: "{{ local_bin }}"
         remote_src: yes
+        extra_opts: [--strip-components=1]
       when: not odin_check.stat.exists
 
-    - name: Install Odin to ~/.local/bin
-      shell: |
-        cp -r /tmp/dist/* {{ local_bin }}/
-        chmod +x {{ local_bin }}/odin
-      args:
-        executable: /bin/bash
+    - name: Make Odin executable
+      file:
+        path: "{{ local_bin }}/odin"
+        mode: '0755'
       when: not odin_check.stat.exists
 
     - name: Clean up downloaded files
       file:
-        path: "{{ item }}"
+        path: /tmp/odin-latest.tar.gz
         state: absent
-      loop:
-        - /tmp/odin-latest.zip
-        - /tmp/dist
       when: not odin_check.stat.exists
 
     - name: Verify Odin installation
