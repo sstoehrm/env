@@ -97,27 +97,11 @@
       args:
         executable: /bin/bash
 
-    - name: Install Ghostty terminal
-      become: yes
-      become_method: sudo
-      community.general.snap:
-        name: ghostty
-        classic: yes
-
-    - name: Set Ghostty as default terminal
-      become: yes
-      become_method: sudo
-      shell: |
-        update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /snap/bin/ghostty 100
-        update-alternatives --set x-terminal-emulator /snap/bin/ghostty
-      args:
-        executable: /bin/bash
-
     - name: Set Omarchy-style keyboard shortcuts
       shell: |
         # Terminal launcher (Super+Return)
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Launch Terminal'"
-        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command "'ghostty'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command "'gnome-terminal'"
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding "'<Super>Return'"
 
         # Browser launcher (Super+Shift+B)
@@ -132,12 +116,12 @@
 
         # Neovim (Super+Shift+N)
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/name "'Launch Neovim'"
-        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/command "'ghostty -e nvim'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/command "'gnome-terminal -- nvim'"
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/binding "'<Super><Shift>n'"
 
         # Lazygit (Super+Shift+G)
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/name "'Launch Lazygit'"
-        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/command "'ghostty -e {{ user_home }}/.local/bin/lazygit'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/command "'gnome-terminal -- {{ user_home }}/.local/bin/lazygit'"
         dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/binding "'<Super><Shift>g'"
 
         # Close window (Super+W)
