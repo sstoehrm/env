@@ -1,0 +1,27 @@
+---
+- name: Office Tools Setup
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Check if Ghostty is installed
+      shell: snap list ghostty
+      register: ghostty_check
+      failed_when: ghostty_check.rc != 0
+      changed_when: false
+
+    - name: Set Ghostty to use software rendering
+      lineinfile:
+        path: '{{ user_home }}/.bashrc'
+        line: 'export LIBGL_ALWAYS_SOFTWARE=1'
+
+    - name: Overwrite Ghostty keybinding with software rendering
+      shell: |
+        # Overwrite Terminal launcher (Super+Return) to use software rendering
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Launch Terminal'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command "'env LIBGL_ALWAYS_SOFTWARE=1 ghostty'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding "'<Super>Return'"
+      args:
+        executable: /bin/bash
