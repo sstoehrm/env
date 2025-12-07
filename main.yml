@@ -70,6 +70,9 @@
 - import_playbook: playbooks/development/ast-grep.yml
   tags: [development, ast-grep]
 
+- import_playbook: playbooks/development/starship.yml
+  tags: [development, starship]
+
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml
   tags: [development, clojure, rlwrap]
