@@ -1,0 +1,66 @@
+---
+- name: Game Development Environment
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    local_bin: '{{ user_home }}/.local/bin'
+
+  tasks:
+    - name: Ensure ~/.local/bin directory exists
+      file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Odin is already installed
+      stat:
+        path: "{{ local_bin }}/odin"
+      register: odin_check
+      changed_when: false
+
+    - name: Get latest Odin release version
+      uri:
+        url: https://api.github.com/repos/odin-lang/Odin/releases/latest
+        return_content: yes
+      register: odin_release
+      when: not odin_check.stat.exists
+
+    - name: Download latest Odin binary
+      get_url:
+        url: "https://github.com/odin-lang/Odin/releases/latest/download/odin-ubuntu-amd64-{{ odin_release.json.tag_name }}.zip"
+        dest: /tmp/odin-latest.zip
+      when: not odin_check.stat.exists
+
+    - name: Extract Odin binary
+      unarchive:
+        src: /tmp/odin-latest.zip
+        dest: /tmp/
+        remote_src: yes
+      when: not odin_check.stat.exists
+
+    - name: Install Odin to ~/.local/bin
+      shell: |
+        cp -r /tmp/dist/* {{ local_bin }}/
+        chmod +x {{ local_bin }}/odin
+      args:
+        executable: /bin/bash
+      when: not odin_check.stat.exists
+
+    - name: Clean up downloaded files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/odin-latest.zip
+        - /tmp/dist
+      when: not odin_check.stat.exists
+
+    - name: Verify Odin installation
+      shell: "{{ local_bin }}/odin version"
+      register: odin_version
+      changed_when: false
+
+    - name: Display Odin version
+      debug:
+        msg: "Odin version: {{ odin_version.stdout }}"
