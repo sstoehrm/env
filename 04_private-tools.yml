@@ -186,13 +186,23 @@
     - name: Download and install ast-grep
       shell: |
         cd /tmp
-        curl -LO https://github.com/ast-grep/ast-grep/releases/latest/download/ast-grep-x86_64-unknown-linux-gnu.zip
-        unzip -o ast-grep-x86_64-unknown-linux-gnu.zip
-        chmod +x ast-grep
-        mv ast-grep {{ user_home }}/.local/bin/sg
-        rm -f ast-grep-x86_64-unknown-linux-gnu.zip
+        curl -LO https://github.com/ast-grep/ast-grep/releases/latest/download/app-x86_64-unknown-linux-gnu.zip
+        unzip -o app-x86_64-unknown-linux-gnu.zip
+        chmod +x ast-grep sg
+        mv ast-grep {{ user_home }}/.local/bin/ast-grep
+        mv sg {{ user_home }}/.local/bin/sg
+        rm -f app-x86_64-unknown-linux-gnu.zip
       args:
         executable: /bin/bash
+
+    - name: Fix nvim cache directory permissions for lazygit
+      file:
+        path: "{{ user_home }}/.cache/nvim"
+        state: directory
+        mode: '0755'
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        recurse: yes
 
     - name: Verify tool installations
       shell: |
@@ -201,7 +211,7 @@
         echo "fzf: $(fzf --version)"
         echo "fish: $(fish --version)"
         echo "luarocks: $(luarocks --version | head -n1)"
-        echo "ast-grep: $({{ user_home }}/.local/bin/sg --version)"
+        echo "ast-grep: $({{ user_home }}/.local/bin/ast-grep --version)"
         echo "gcc: $(gcc --version | head -n1)"
       args:
         executable: /bin/bash
