@@ -1,0 +1,66 @@
+---
+- name: Blockbench
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    local_bin: '{{ user_home }}/.local/bin'
+    applications_dir: '{{ user_home }}/.local/share/applications'
+
+  tasks:
+    - name: Ensure ~/.local/bin directory exists
+      file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure ~/.local/share/applications directory exists
+      file:
+        path: "{{ applications_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Blockbench is already installed
+      stat:
+        path: "{{ local_bin }}/blockbench"
+      register: blockbench_check
+      changed_when: false
+
+    - name: Get latest Blockbench release version
+      uri:
+        url: https://api.github.com/repos/JannisX11/blockbench/releases/latest
+        return_content: yes
+      register: blockbench_release
+      when: not blockbench_check.stat.exists
+
+    - name: Download latest Blockbench AppImage
+      get_url:
+        url: "https://github.com/JannisX11/blockbench/releases/download/{{ blockbench_release.json.tag_name }}/Blockbench_x64_{{ blockbench_release.json.tag_name }}.AppImage"
+        dest: "{{ local_bin }}/blockbench"
+        mode: '0755'
+      when: not blockbench_check.stat.exists
+
+    - name: Create desktop entry for Blockbench
+      copy:
+        dest: "{{ applications_dir }}/blockbench.desktop"
+        content: |
+          [Desktop Entry]
+          Name=Blockbench
+          Comment=3D model editor for low-poly and boxy models
+          Exec={{ local_bin }}/blockbench
+          Icon=blockbench
+          Terminal=false
+          Type=Application
+          Categories=Graphics;3DGraphics;Development;
+        mode: '0644'
+
+    - name: Verify Blockbench installation
+      shell: "{{ local_bin }}/blockbench --version"
+      register: blockbench_version
+      changed_when: false
+      failed_when: false
+
+    - name: Display Blockbench version
+      debug:
+        msg: "Blockbench installed successfully"
+      when: blockbench_version.rc == 0

@@ -84,6 +84,9 @@
 - import_playbook: playbooks/development/odin.yml
   tags: [development, gamedev, odin]
 
+- import_playbook: playbooks/development/blockbench.yml
+  tags: [development, gamedev, blockbench]
+
 # Applications
 - import_playbook: playbooks/applications/chromium.yml
   tags: [applications, chromium]
