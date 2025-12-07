@@ -1,0 +1,80 @@
+---
+- name: Clojure Development Environment
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    local_bin: '{{ user_home }}/.local/bin'
+
+  tasks:
+    - name: Ensure ~/.local/bin directory exists
+      file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: Install rlwrap for Clojure REPL
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - rlwrap
+        state: present
+        update_cache: yes
+
+    - name: Check if Babashka is already installed
+      stat:
+        path: "{{ local_bin }}/bb"
+      register: bb_check
+      changed_when: false
+
+    - name: Download and install Babashka
+      shell: |
+        curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+        chmod +x install
+        ./install --dir {{ local_bin }}
+        rm install
+      args:
+        executable: /bin/bash
+        chdir: /tmp
+      when: not bb_check.stat.exists
+
+    - name: Check if Clojure CLI is already installed
+      stat:
+        path: "{{ local_bin }}/clojure"
+      register: clj_check
+      changed_when: false
+
+    - name: Download latest Clojure CLI installation script
+      get_url:
+        url: https://download.clojure.org/install/linux-install.sh
+        dest: /tmp/install-clojure.sh
+        mode: '0755'
+      when: not clj_check.stat.exists
+
+    - name: Install Clojure CLI to ~/.local/bin
+      shell: |
+        sed 's|/usr/local|{{ user_home }}/.local|g' /tmp/install-clojure.sh > /tmp/install-clojure-local.sh
+        chmod +x /tmp/install-clojure-local.sh
+        /tmp/install-clojure-local.sh
+      args:
+        executable: /bin/bash
+      when: not clj_check.stat.exists
+
+    - name: Verify Babashka installation
+      shell: "{{ local_bin }}/bb --version"
+      register: bb_version
+      changed_when: false
+
+    - name: Display Babashka version
+      debug:
+        msg: "Babashka version: {{ bb_version.stdout }}"
+
+    - name: Verify Clojure CLI installation
+      shell: "{{ local_bin }}/clojure --version"
+      register: clj_version
+      changed_when: false
+
+    - name: Display Clojure CLI version
+      debug:
+        msg: "Clojure version: {{ clj_version.stdout }}"
