@@ -1,0 +1,43 @@
+---
+- name: LazyVim
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Check if LazyVim is already installed
+      stat:
+        path: "{{ user_home }}/.config/nvim"
+      register: lazyvim_check
+      changed_when: false
+
+    - name: Remove old backup if it exists
+      file:
+        path: "{{ user_home }}/.config/nvim.bak"
+        state: absent
+      when: lazyvim_check.stat.exists
+
+    - name: Backup existing Neovim config if present
+      command: mv {{ user_home }}/.config/nvim {{ user_home }}/.config/nvim.bak
+      when: lazyvim_check.stat.exists
+
+    - name: Clone LazyVim starter configuration
+      git:
+        repo: 'https://github.com/LazyVim/starter'
+        dest: "{{ user_home }}/.config/nvim"
+        depth: 1
+
+    - name: Remove .git folder from LazyVim config
+      file:
+        path: "{{ user_home }}/.config/nvim/.git"
+        state: absent
+
+    - name: Fix nvim cache directory permissions
+      file:
+        path: "{{ user_home }}/.cache/nvim"
+        state: directory
+        mode: '0755'
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        recurse: yes

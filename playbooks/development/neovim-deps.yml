@@ -1,0 +1,33 @@
+---
+- name: Neovim Dependencies
+  hosts: localhost
+
+  tasks:
+    - name: Install LazyVim dependencies via apt
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - build-essential
+          - ripgrep
+          - fzf
+          - fish
+          - luarocks
+        state: present
+        update_cache: yes
+
+    - name: Verify tool installations
+      shell: |
+        echo "ripgrep: $(rg --version | head -n1)"
+        echo "fzf: $(fzf --version)"
+        echo "fish: $(fish --version)"
+        echo "luarocks: $(luarocks --version | head -n1)"
+        echo "gcc: $(gcc --version | head -n1)"
+      args:
+        executable: /bin/bash
+      register: tool_versions
+      changed_when: false
+
+    - name: Display installed tool versions
+      debug:
+        msg: "{{ tool_versions.stdout_lines }}"

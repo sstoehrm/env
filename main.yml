@@ -1,0 +1,92 @@
+---
+# Master playbook for development environment setup
+# Run with: ansible-playbook main.yml
+# Or run specific sections with tags: ansible-playbook main.yml --tags "base,development"
+
+# Base system packages
+- import_playbook: playbooks/base/packages.yml
+  tags: [base, packages]
+
+- import_playbook: playbooks/base/signal.yml
+  tags: [base, signal]
+
+# Development environment managers
+- import_playbook: playbooks/development/sdkman.yml
+  tags: [development, sdkman]
+
+- import_playbook: playbooks/development/nvm.yml
+  tags: [development, nvm]
+
+# Java/JVM tools (require SDKMAN)
+- import_playbook: playbooks/development/java.yml
+  tags: [development, java]
+
+- import_playbook: playbooks/development/kotlin.yml
+  tags: [development, kotlin]
+
+- import_playbook: playbooks/development/maven.yml
+  tags: [development, maven]
+
+- import_playbook: playbooks/development/gradle.yml
+  tags: [development, gradle]
+
+- import_playbook: playbooks/development/visualvm.yml
+  tags: [development, visualvm]
+
+# Node.js (requires NVM)
+- import_playbook: playbooks/development/nodejs.yml
+  tags: [development, nodejs]
+
+# IDEs and editors
+- import_playbook: playbooks/development/vscode.yml
+  tags: [development, vscode]
+
+- import_playbook: playbooks/development/opencode.yml
+  tags: [development, opencode]
+
+- import_playbook: playbooks/development/neovim.yml
+  tags: [development, neovim]
+
+- import_playbook: playbooks/development/neovim-deps.yml
+  tags: [development, neovim-deps]
+
+- import_playbook: playbooks/development/lazyvim.yml
+  tags: [development, lazyvim]
+
+# Docker and containers
+- import_playbook: playbooks/development/docker.yml
+  tags: [development, docker]
+
+- import_playbook: playbooks/development/portainer.yml
+  tags: [development, portainer]
+
+# Development tools
+- import_playbook: playbooks/development/lazygit.yml
+  tags: [development, lazygit]
+
+- import_playbook: playbooks/development/fd.yml
+  tags: [development, fd]
+
+- import_playbook: playbooks/development/ast-grep.yml
+  tags: [development, ast-grep]
+
+# Clojure
+- import_playbook: playbooks/development/rlwrap.yml
+  tags: [development, clojure, rlwrap]
+
+- import_playbook: playbooks/development/babashka.yml
+  tags: [development, clojure, babashka]
+
+- import_playbook: playbooks/development/clojure-cli.yml
+  tags: [development, clojure, clojure-cli]
+
+# Game development
+- import_playbook: playbooks/development/odin.yml
+  tags: [development, gamedev, odin]
+
+# Applications
+- import_playbook: playbooks/applications/chromium.yml
+  tags: [applications, chromium]
+
+- import_playbook: playbooks/applications/keyboard-shortcuts.yml
+  tags: [applications, keyboard-shortcuts]

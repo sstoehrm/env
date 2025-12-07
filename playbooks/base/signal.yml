@@ -1,0 +1,12 @@
+---
+- name: Signal Desktop
+  hosts: localhost
+
+  tasks:
+    - name: Install Signal Desktop
+      become: yes
+      become_method: sudo
+      community.general.snap:
+        name:
+          - signal-desktop
+        classic: yes

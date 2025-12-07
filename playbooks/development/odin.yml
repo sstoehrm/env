@@ -1,5 +1,5 @@
 ---
-- name: Game Development Environment
+- name: Odin
   hosts: localhost
   vars:
     user: 'soeren'

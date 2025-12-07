@@ -1,0 +1,14 @@
+---
+- name: Gradle via SDKMAN
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Install Gradle
+      shell: |
+        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
+        sdk install gradle
+      args:
+        executable: /bin/bash

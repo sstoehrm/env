@@ -1,5 +1,5 @@
 ---
-- name: Ground Software Environment
+- name: Base Packages
   hosts: localhost
 
   tasks:
@@ -17,12 +17,3 @@
         name:
           - curl
           - git
-
-    - name: Install snap packages
-      become: yes
-      become_method: sudo
-      community.general.snap:
-        name:
-          - signal-desktop
-        classic: yes
-

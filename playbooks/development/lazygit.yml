@@ -1,0 +1,25 @@
+---
+- name: Lazygit
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Get latest lazygit version
+      shell: |
+        curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/'
+      register: lazygit_version
+      changed_when: false
+
+    - name: Download and install lazygit from GitHub
+      shell: |
+        cd /tmp
+        VERSION="{{ lazygit_version.stdout }}"
+        curl -LO "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${VERSION#v}_Linux_x86_64.tar.gz"
+        tar -xzf "lazygit_${VERSION#v}_Linux_x86_64.tar.gz"
+        mv lazygit {{ user_home }}/.local/bin/lazygit
+        chmod +x {{ user_home }}/.local/bin/lazygit
+        rm -f "lazygit_${VERSION#v}_Linux_x86_64.tar.gz"
+      args:
+        executable: /bin/bash

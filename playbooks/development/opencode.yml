@@ -1,0 +1,19 @@
+---
+- name: OpenCode
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Check if OpenCode is already installed
+      stat:
+        path: "{{ user_home }}/.opencode/bin/opencode"
+      register: opencode_check
+      changed_when: false
+
+    - name: Install OpenCode
+      shell: curl -fsSL https://opencode.ai/install | bash
+      args:
+        executable: /bin/bash
+      when: not opencode_check.stat.exists

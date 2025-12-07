@@ -1,5 +1,5 @@
 ---
-- name: Clojure Development Environment
+- name: Clojure CLI
   hosts: localhost
   vars:
     user: 'soeren'
@@ -12,32 +12,6 @@
         path: "{{ local_bin }}"
         state: directory
         mode: '0755'
-
-    - name: Install rlwrap for Clojure REPL
-      become: yes
-      become_method: sudo
-      apt:
-        name:
-          - rlwrap
-        state: present
-        update_cache: yes
-
-    - name: Check if Babashka is already installed
-      stat:
-        path: "{{ local_bin }}/bb"
-      register: bb_check
-      changed_when: false
-
-    - name: Download and install Babashka
-      shell: |
-        curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
-        chmod +x install
-        ./install --dir {{ local_bin }}
-        rm install
-      args:
-        executable: /bin/bash
-        chdir: /tmp
-      when: not bb_check.stat.exists
 
     - name: Check if Clojure CLI is already installed
       stat:
@@ -60,15 +34,6 @@
       args:
         executable: /bin/bash
       when: not clj_check.stat.exists
-
-    - name: Verify Babashka installation
-      shell: "{{ local_bin }}/bb --version"
-      register: bb_version
-      changed_when: false
-
-    - name: Display Babashka version
-      debug:
-        msg: "Babashka version: {{ bb_version.stdout }}"
 
     - name: Verify Clojure CLI installation
       shell: "{{ local_bin }}/clojure --version"

@@ -1,0 +1,34 @@
+---
+- name: fd
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Get latest fd version
+      shell: |
+        curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/'
+      register: fd_version
+      changed_when: false
+
+    - name: Download and install fd
+      shell: |
+        cd /tmp
+        VERSION="{{ fd_version.stdout }}"
+        curl -LO "https://github.com/sharkdp/fd/releases/latest/download/fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+        tar -xzf "fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+        mv "fd-${VERSION}-x86_64-unknown-linux-gnu/fd" {{ user_home }}/.local/bin/fd
+        chmod +x {{ user_home }}/.local/bin/fd
+        rm -rf "fd-${VERSION}-x86_64-unknown-linux-gnu" "fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+      args:
+        executable: /bin/bash
+
+    - name: Verify fd installation
+      shell: "{{ user_home }}/.local/bin/fd --version"
+      register: fd_installed_version
+      changed_when: false
+
+    - name: Display fd version
+      debug:
+        msg: "{{ fd_installed_version.stdout }}"

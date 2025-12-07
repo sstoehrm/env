@@ -1,0 +1,14 @@
+---
+- name: VisualVM via SDKMAN
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Install VisualVM
+      shell: |
+        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
+        sdk install visualvm
+      args:
+        executable: /bin/bash

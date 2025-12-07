@@ -1,0 +1,19 @@
+---
+- name: NVM
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Check if NVM is installed
+      stat:
+        path: '{{ user_home }}/.nvm'
+      register: nvm_installed
+
+    - name: Install NVM
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+      args:
+        executable: /bin/bash
+      when: not nvm_installed.stat.exists

@@ -1,0 +1,15 @@
+---
+- name: Java via SDKMAN
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    java_version: '21.0.9-tem'
+
+  tasks:
+    - name: Install Java
+      shell: |
+        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
+        sdk install java {{ java_version }}
+      args:
+        executable: /bin/bash

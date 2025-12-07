@@ -1,8 +1,0 @@
----
-- name: Office Tools Setup
-  hosts: localhost
-  vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
-
-  tasks: []

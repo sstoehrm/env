@@ -1,0 +1,20 @@
+---
+- name: SDKMAN
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Check if SDKMAN is installed
+      stat:
+        path: '{{ user_home }}/.sdkman'
+      register: sdkman_installed
+
+    - name: Install SDKMAN
+      shell: |
+        curl -s "https://get.sdkman.io" | bash
+        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
+      args:
+        executable: /bin/bash
+      when: not sdkman_installed.stat.exists

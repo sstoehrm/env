@@ -1,0 +1,58 @@
+---
+- name: Keyboard Shortcuts
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    terminal: 'gnome-terminal'
+
+  tasks:
+    - name: Set Omarchy-style keyboard shortcuts
+      shell: |
+        # Terminal launcher (Super+Return)
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Launch Terminal'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command "'{{ terminal }}'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding "'<Super>Return'"
+
+        # Browser launcher (Super+Shift+B)
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/name "'Launch Browser'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/command "'chromium'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/binding "'<Super><Shift>b'"
+
+        # File manager (Super+Shift+F)
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/name "'Launch File Manager'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/command "'nautilus'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/binding "'<Super><Shift>f'"
+
+        # Neovim (Super+Shift+N)
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/name "'Launch Neovim'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/command "'{{ terminal }} -- nvim'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/binding "'<Super><Shift>n'"
+
+        # Lazygit (Super+Shift+G)
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/name "'Launch Lazygit'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/command "'{{ terminal }} -- {{ user_home }}/.local/bin/lazygit'"
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/binding "'<Super><Shift>g'"
+
+        # Close window (Super+W)
+        dconf write /org/gnome/desktop/wm/keybindings/close "['<Super>w']"
+
+        # Toggle fullscreen (Super+F)
+        dconf write /org/gnome/desktop/wm/keybindings/toggle-fullscreen "['<Super>f']"
+
+        # Switch workspaces (Super+1/2/3/4)
+        dconf write /org/gnome/desktop/wm/keybindings/switch-to-workspace-1 "['<Super>1']"
+        dconf write /org/gnome/desktop/wm/keybindings/switch-to-workspace-2 "['<Super>2']"
+        dconf write /org/gnome/desktop/wm/keybindings/switch-to-workspace-3 "['<Super>3']"
+        dconf write /org/gnome/desktop/wm/keybindings/switch-to-workspace-4 "['<Super>4']"
+
+        # Move window to workspace (Super+Shift+1/2/3/4)
+        dconf write /org/gnome/desktop/wm/keybindings/move-to-workspace-1 "['<Super><Shift>1']"
+        dconf write /org/gnome/desktop/wm/keybindings/move-to-workspace-2 "['<Super><Shift>2']"
+        dconf write /org/gnome/desktop/wm/keybindings/move-to-workspace-3 "['<Super><Shift>3']"
+        dconf write /org/gnome/desktop/wm/keybindings/move-to-workspace-4 "['<Super><Shift>4']"
+
+        # Register custom keybindings
+        dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/']"
+      args:
+        executable: /bin/bash

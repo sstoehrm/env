@@ -1,0 +1,32 @@
+---
+- name: Docker
+  hosts: localhost
+  vars:
+    user: 'soeren'
+
+  tasks:
+    - name: Install Docker Engine and Docker Compose
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: yes
+
+    - name: Add user to docker group
+      become: yes
+      become_method: sudo
+      user:
+        name: "{{ user }}"
+        groups: docker
+        append: yes
+
+    - name: Ensure Docker service is started and enabled
+      become: yes
+      become_method: sudo
+      systemd:
+        name: docker
+        state: started
+        enabled: yes

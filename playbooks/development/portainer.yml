@@ -1,0 +1,22 @@
+---
+- name: Portainer
+  hosts: localhost
+
+  tasks:
+    - name: Deploy Portainer container
+      become: yes
+      become_method: sudo
+      shell: |
+        docker run -d \
+          --name portainer \
+          --restart=always \
+          -p 9000:9000 \
+          -p 9443:9443 \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v portainer_data:/data \
+          portainer/portainer-ce:latest
+      args:
+        executable: /bin/bash
+      register: portainer_result
+      failed_when: portainer_result.rc != 0 and 'already in use' not in portainer_result.stderr
+      changed_when: portainer_result.rc == 0

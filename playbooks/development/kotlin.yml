@@ -1,0 +1,14 @@
+---
+- name: Kotlin via SDKMAN
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Install Kotlin
+      shell: |
+        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
+        sdk install kotlin
+      args:
+        executable: /bin/bash

@@ -1,0 +1,10 @@
+---
+- name: Chromium
+  hosts: localhost
+
+  tasks:
+    - name: Install Chromium
+      become: yes
+      become_method: sudo
+      community.general.snap:
+        name: chromium

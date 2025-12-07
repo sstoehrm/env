@@ -1,0 +1,40 @@
+---
+- name: Babashka
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    local_bin: '{{ user_home }}/.local/bin'
+
+  tasks:
+    - name: Ensure ~/.local/bin directory exists
+      file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Babashka is already installed
+      stat:
+        path: "{{ local_bin }}/bb"
+      register: bb_check
+      changed_when: false
+
+    - name: Download and install Babashka
+      shell: |
+        curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+        chmod +x install
+        ./install --dir {{ local_bin }}
+        rm install
+      args:
+        executable: /bin/bash
+        chdir: /tmp
+      when: not bb_check.stat.exists
+
+    - name: Verify Babashka installation
+      shell: "{{ local_bin }}/bb --version"
+      register: bb_version
+      changed_when: false
+
+    - name: Display Babashka version
+      debug:
+        msg: "Babashka version: {{ bb_version.stdout }}"

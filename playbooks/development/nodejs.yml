@@ -1,0 +1,16 @@
+---
+- name: Node.js via NVM
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+    node_version: '24'
+
+  tasks:
+    - name: Install Node.js via NVM
+      shell: |
+        export NVM_DIR="{{ user_home }}/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        nvm install {{ node_version }}
+      args:
+        executable: /bin/bash

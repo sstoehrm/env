@@ -1,0 +1,14 @@
+---
+- name: Maven via SDKMAN
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Install Maven
+      shell: |
+        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
+        sdk install maven
+      args:
+        executable: /bin/bash

@@ -1,0 +1,13 @@
+---
+- name: rlwrap
+  hosts: localhost
+
+  tasks:
+    - name: Install rlwrap for Clojure REPL
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - rlwrap
+        state: present
+        update_cache: yes

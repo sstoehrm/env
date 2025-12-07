@@ -1,0 +1,53 @@
+---
+- name: Neovim
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Check if Neovim is installed
+      shell: nvim --version | head -n1
+      register: nvim_current_version
+      failed_when: false
+      changed_when: false
+
+    - name: Display current Neovim version
+      debug:
+        msg: "Current Neovim version: {{ nvim_current_version.stdout if nvim_current_version.rc == 0 else 'Not installed' }}"
+
+    - name: Remove old Neovim AppImage
+      file:
+        path: "{{ user_home }}/.local/bin/nvim"
+        state: absent
+      when: nvim_current_version.rc == 0
+
+    - name: Ensure .local/bin directory exists
+      file:
+        path: "{{ user_home }}/.local/bin"
+        state: directory
+        mode: '0755'
+
+    - name: Get latest Neovim version
+      shell: |
+        curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/'
+      register: latest_nvim_version
+      changed_when: false
+
+    - name: Download and install latest Neovim AppImage
+      shell: |
+        cd /tmp
+        curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+        chmod u+x nvim-linux-x86_64.appimage
+        mv nvim-linux-x86_64.appimage {{ user_home }}/.local/bin/nvim
+      args:
+        executable: /bin/bash
+
+    - name: Verify Neovim installation
+      shell: "{{ user_home }}/.local/bin/nvim --version | head -n1"
+      register: new_nvim_version
+      changed_when: false
+
+    - name: Display installed Neovim version
+      debug:
+        msg: "Installed Neovim version: {{ new_nvim_version.stdout }}"
