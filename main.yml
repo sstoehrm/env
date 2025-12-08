@@ -45,46 +45,46 @@
   tags: [base, opencode]
 
 - import_playbook: playbooks/development/neovim.yml
-  tags: [base, neovim]
+  tags: [soeren, neovim]
 
 - import_playbook: playbooks/development/neovim-deps.yml
-  tags: [base, neovim-deps]
+  tags: [soeren, neovim-deps]
 
 - import_playbook: playbooks/development/lazyvim.yml
-  tags: [base, lazyvim]
+  tags: [soeren, lazyvim]
 
 # Docker and containers
 - import_playbook: playbooks/development/docker.yml
   tags: [base, docker]
 
 - import_playbook: playbooks/development/portainer.yml
-  tags: [base, portainer]
+  tags: [soeren, portainer]
 
 # Development tools
 - import_playbook: playbooks/development/lazygit.yml
-  tags: [base, lazygit]
+  tags: [soeren, lazygit]
 
 - import_playbook: playbooks/development/fd.yml
-  tags: [base, fd]
+  tags: [soeren, fd]
 
 - import_playbook: playbooks/development/ast-grep.yml
-  tags: [base, ast-grep]
+  tags: [soeren, ast-grep]
 
 - import_playbook: playbooks/development/tmux.yml
-  tags: [base, tmux]
+  tags: [soeren, tmux]
 
 - import_playbook: playbooks/development/starship.yml
-  tags: [base, starship]
+  tags: [soeren, starship]
 
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml
-  tags: [base, clojure, rlwrap]
+  tags: [soeren, clojure, rlwrap]
 
 - import_playbook: playbooks/development/babashka.yml
-  tags: [base, clojure, babashka]
+  tags: [soeren, clojure, babashka]
 
 - import_playbook: playbooks/development/clojure-cli.yml
-  tags: [base, clojure, clojure-cli]
+  tags: [soeren, clojure, clojure-cli]
 
 # Game development
 - import_playbook: playbooks/development/odin.yml
