@@ -3,7 +3,7 @@
   hosts: localhost
 
   tasks:
-    - name: Install LazyVim dependencies via apt
+    - name: Install LazyVim dependencies (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
@@ -15,3 +15,24 @@
           - luarocks
         state: present
         update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install development tools group (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: '@Development Tools'
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install LazyVim dependencies (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name:
+          - ripgrep
+          - fzf
+          - fish
+          - luarocks
+        state: present
+      when: ansible_os_family == "RedHat"

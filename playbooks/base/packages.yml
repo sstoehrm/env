@@ -3,17 +3,29 @@
   hosts: localhost
 
   tasks:
-    - name: Update apt cache
+    - name: Update apt cache (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
         update_cache: yes
         cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
 
-    - name: Install base packages
+    - name: Install base packages (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
         name:
           - curl
           - git
+      when: ansible_os_family == "Debian"
+
+    - name: Install base packages (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name:
+          - curl
+          - git
+        state: present
+      when: ansible_os_family == "RedHat"

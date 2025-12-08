@@ -1,5 +1,14 @@
 # Env
 
+Ansible-based development environment setup that works across multiple Linux distributions.
+
+## Supported Distributions
+
+- **Ubuntu/Debian**: Uses apt, snap for package management
+- **Fedora/RHEL**: Uses dnf, Flatpak for package management
+
+The playbooks automatically detect your distribution and use the appropriate package manager.
+
 ## Installation
 
 Install Ansible:
@@ -48,6 +57,20 @@ ansible-playbook main.yml --tags "lazyvim"
 - **Individual tool tags**: `packages`, `signal`, `sdkman`, `nvm`, `java`, `kotlin`, `maven`, `gradle`, `visualvm`, `nodejs`, `vscode`, `opencode`, `neovim`, `neovim-deps`, `lazyvim`, `docker`, `portainer`, `lazygit`, `fd`, `ast-grep`, `tmux`, `starship`, `rlwrap`, `babashka`, `clojure-cli`, `odin`, `blockbench`, `chromium`, `keyboard-shortcuts`
 
 ## Important Notes
+
+### Distribution Support
+
+The playbooks automatically detect your Linux distribution and adapt accordingly:
+
+- **Ubuntu/Debian**: Uses `apt` for system packages and `snap` for applications (Signal, Chromium, VSCode)
+- **Fedora/RHEL**: Uses `dnf` for system packages and `Flatpak` for applications (Signal, Chromium, VSCode)
+
+Most development tools (SDKMAN, NVM, Neovim, lazygit, etc.) are installed from source or GitHub releases and work identically across distributions.
+
+**Fedora users**: Ensure Flatpak is enabled:
+```bash
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+```
 
 ### LazyVim Installation
 

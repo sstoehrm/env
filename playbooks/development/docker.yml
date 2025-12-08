@@ -5,7 +5,7 @@
     user: 'soeren'
 
   tasks:
-    - name: Install Docker Engine and Docker Compose
+    - name: Install Docker Engine and Docker Compose (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
@@ -14,6 +14,17 @@
           - docker-compose
         state: present
         update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker Engine and Docker Compose (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name:
+          - docker
+          - docker-compose
+        state: present
+      when: ansible_os_family == "RedHat"
 
     - name: Add user to docker group
       become: yes

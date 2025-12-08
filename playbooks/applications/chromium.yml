@@ -3,8 +3,17 @@
   hosts: localhost
 
   tasks:
-    - name: Install Chromium
+    - name: Install Chromium (Ubuntu/Debian via snap)
       become: yes
       become_method: sudo
       community.general.snap:
         name: chromium
+      when: ansible_os_family == "Debian"
+
+    - name: Install Chromium (Fedora via Flatpak)
+      become: yes
+      become_method: sudo
+      community.general.flatpak:
+        name: org.chromium.Chromium
+        state: present
+      when: ansible_os_family == "RedHat"

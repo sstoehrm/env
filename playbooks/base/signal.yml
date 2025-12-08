@@ -3,10 +3,19 @@
   hosts: localhost
 
   tasks:
-    - name: Install Signal Desktop
+    - name: Install Signal Desktop (Ubuntu/Debian via snap)
       become: yes
       become_method: sudo
       community.general.snap:
         name:
           - signal-desktop
         classic: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Signal Desktop (Fedora via Flatpak)
+      become: yes
+      become_method: sudo
+      community.general.flatpak:
+        name: org.signal.Signal
+        state: present
+      when: ansible_os_family == "RedHat"

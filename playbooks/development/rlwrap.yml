@@ -3,7 +3,7 @@
   hosts: localhost
 
   tasks:
-    - name: Install rlwrap for Clojure REPL
+    - name: Install rlwrap for Clojure REPL (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
@@ -11,3 +11,13 @@
           - rlwrap
         state: present
         update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install rlwrap for Clojure REPL (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name:
+          - rlwrap
+        state: present
+      when: ansible_os_family == "RedHat"

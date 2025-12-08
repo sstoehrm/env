@@ -3,12 +3,21 @@
   hosts: localhost
 
   tasks:
-    - name: Install VS Code
+    - name: Install VS Code (Ubuntu/Debian via snap)
       become: yes
       become_method: sudo
       community.general.snap:
         name: code
         classic: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install VS Code (Fedora via Flatpak)
+      become: yes
+      become_method: sudo
+      community.general.flatpak:
+        name: com.visualstudio.code
+        state: present
+      when: ansible_os_family == "RedHat"
 
     - name: Install VS Code extensions
       shell: |
