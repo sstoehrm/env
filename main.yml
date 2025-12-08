@@ -12,90 +12,90 @@
 
 # Development environment managers
 - import_playbook: playbooks/development/sdkman.yml
-  tags: [development, sdkman]
+  tags: [base, sdkman]
 
 - import_playbook: playbooks/development/nvm.yml
-  tags: [development, nvm]
+  tags: [base, nvm]
 
 # Java/JVM tools (require SDKMAN)
 - import_playbook: playbooks/development/java.yml
-  tags: [development, java]
+  tags: [base, java]
 
 - import_playbook: playbooks/development/kotlin.yml
-  tags: [development, kotlin]
+  tags: [base, kotlin]
 
 - import_playbook: playbooks/development/maven.yml
-  tags: [development, maven]
+  tags: [base, maven]
 
 - import_playbook: playbooks/development/gradle.yml
-  tags: [development, gradle]
+  tags: [base, gradle]
 
 - import_playbook: playbooks/development/visualvm.yml
-  tags: [development, visualvm]
+  tags: [base, visualvm]
 
 # Node.js (requires NVM)
 - import_playbook: playbooks/development/nodejs.yml
-  tags: [development, nodejs]
+  tags: [base, nodejs]
 
 # IDEs and editors
 - import_playbook: playbooks/development/vscode.yml
-  tags: [development, vscode]
+  tags: [base, vscode]
 
 - import_playbook: playbooks/development/opencode.yml
-  tags: [development, opencode]
+  tags: [base, opencode]
 
 - import_playbook: playbooks/development/neovim.yml
-  tags: [development, neovim]
+  tags: [base, neovim]
 
 - import_playbook: playbooks/development/neovim-deps.yml
-  tags: [development, neovim-deps]
+  tags: [base, neovim-deps]
 
 - import_playbook: playbooks/development/lazyvim.yml
-  tags: [development, lazyvim]
+  tags: [base, lazyvim]
 
 # Docker and containers
 - import_playbook: playbooks/development/docker.yml
-  tags: [development, docker]
+  tags: [base, docker]
 
 - import_playbook: playbooks/development/portainer.yml
-  tags: [development, portainer]
+  tags: [base, portainer]
 
 # Development tools
 - import_playbook: playbooks/development/lazygit.yml
-  tags: [development, lazygit]
+  tags: [base, lazygit]
 
 - import_playbook: playbooks/development/fd.yml
-  tags: [development, fd]
+  tags: [base, fd]
 
 - import_playbook: playbooks/development/ast-grep.yml
-  tags: [development, ast-grep]
+  tags: [base, ast-grep]
 
 - import_playbook: playbooks/development/tmux.yml
-  tags: [development, tmux]
+  tags: [base, tmux]
 
 - import_playbook: playbooks/development/starship.yml
-  tags: [development, starship]
+  tags: [base, starship]
 
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml
-  tags: [development, clojure, rlwrap]
+  tags: [base, clojure, rlwrap]
 
 - import_playbook: playbooks/development/babashka.yml
-  tags: [development, clojure, babashka]
+  tags: [base, clojure, babashka]
 
 - import_playbook: playbooks/development/clojure-cli.yml
-  tags: [development, clojure, clojure-cli]
+  tags: [base, clojure, clojure-cli]
 
 # Game development
 - import_playbook: playbooks/development/odin.yml
-  tags: [development, gamedev, odin]
+  tags: [gamedev, odin]
 
 - import_playbook: playbooks/development/blockbench.yml
-  tags: [development, gamedev, blockbench]
+  tags: [gamedev, blockbench]
 
 # Applications
 - import_playbook: playbooks/applications/chromium.yml
-  tags: [applications, chromium]
+  tags: [base, chromium]
 
 - import_playbook: playbooks/applications/keyboard-shortcuts.yml
-  tags: [applications, keyboard-shortcuts]
+  tags: [base, keyboard-shortcuts]
