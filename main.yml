@@ -70,6 +70,9 @@
 - import_playbook: playbooks/development/ast-grep.yml
   tags: [development, ast-grep]
 
+- import_playbook: playbooks/development/tmux.yml
+  tags: [development, tmux]
+
 - import_playbook: playbooks/development/starship.yml
   tags: [development, starship]
 

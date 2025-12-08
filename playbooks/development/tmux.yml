@@ -1,0 +1,108 @@
+---
+- name: Tmux
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+  tasks:
+    - name: Install tmux
+      become: yes
+      become_method: sudo
+      apt:
+        name: tmux
+        state: present
+        update_cache: yes
+
+    - name: Create tmux configuration
+      copy:
+        dest: "{{ user_home }}/.tmux.conf"
+        content: |
+          # Enable mouse support
+          set -g mouse on
+
+          # Set 256 color terminal
+          set -g default-terminal "screen-256color"
+
+          # Enable true color support (24-bit RGB) for all terminals
+          set -ga terminal-overrides ",*:Tc"
+
+          # Modern true color support for tmux 3.2+ (fallback gracefully on older versions)
+          set -as terminal-features ",*:RGB"
+
+          # Vi mode
+          set-window-option -g mode-keys vi
+
+          # Start windows and panes at 1, not 0
+          set -g base-index 1
+          setw -g pane-base-index 1
+
+          # Renumber windows when one is closed
+          set -g renumber-windows on
+
+          # Increase scrollback buffer size
+          set -g history-limit 10000
+
+          # Status bar customization
+          set -g status-position bottom
+          set -g status-style bg=default
+          set -g status-left-length 20
+          set -g status-right-length 100
+
+          # Window status
+          setw -g window-status-current-style fg=cyan,bold
+          setw -g window-status-style fg=white,dim
+
+          # Pane borders
+          set -g pane-border-style fg=brightblack
+          set -g pane-active-border-style fg=cyan
+
+          # Message style
+          set -g message-style bg=default,fg=yellow
+
+          # Split panes using | and -
+          bind | split-window -h -c "#{pane_current_path}"
+          bind - split-window -v -c "#{pane_current_path}"
+          unbind '"'
+          unbind %
+
+          # Reload config with r
+          bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+          # Switch panes using Alt-arrow without prefix
+          bind -n M-Left select-pane -L
+          bind -n M-Right select-pane -R
+          bind -n M-Up select-pane -U
+          bind -n M-Down select-pane -D
+
+          # Vi-style pane navigation
+          bind h select-pane -L
+          bind j select-pane -D
+          bind k select-pane -U
+          bind l select-pane -R
+
+          # Vi-style copy mode bindings
+          bind-key -T copy-mode-vi v send-keys -X begin-selection
+          bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+
+          # Don't exit copy mode when dragging with mouse
+          unbind -T copy-mode-vi MouseDragEnd1Pane
+
+          # Enable focus events (useful for vim/neovim)
+          set -g focus-events on
+
+          # Faster command sequences
+          set -s escape-time 0
+
+          # Aggressive resize
+          setw -g aggressive-resize on
+        mode: '0644'
+
+    - name: Verify tmux installation
+      command: tmux -V
+      register: tmux_version
+      changed_when: false
+
+    - name: Display tmux version
+      debug:
+        msg: "{{ tmux_version.stdout }}"
