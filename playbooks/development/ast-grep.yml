@@ -17,12 +17,3 @@
         rm -f app-x86_64-unknown-linux-gnu.zip
       args:
         executable: /bin/bash
-
-    - name: Verify ast-grep installation
-      shell: "{{ user_home }}/.local/bin/ast-grep --version"
-      register: ast_grep_version
-      changed_when: false
-
-    - name: Display ast-grep version
-      debug:
-        msg: "{{ ast_grep_version.stdout }}"

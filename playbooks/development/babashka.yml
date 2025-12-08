@@ -29,12 +29,3 @@
         executable: /bin/bash
         chdir: /tmp
       when: not bb_check.stat.exists
-
-    - name: Verify Babashka installation
-      shell: "{{ local_bin }}/bb --version"
-      register: bb_version
-      changed_when: false
-
-    - name: Display Babashka version
-      debug:
-        msg: "Babashka version: {{ bb_version.stdout }}"

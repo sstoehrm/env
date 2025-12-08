@@ -34,12 +34,3 @@
       args:
         executable: /bin/bash
       when: not clj_check.stat.exists
-
-    - name: Verify Clojure CLI installation
-      shell: "{{ local_bin }}/clojure --version"
-      register: clj_version
-      changed_when: false
-
-    - name: Display Clojure CLI version
-      debug:
-        msg: "Clojure version: {{ clj_version.stdout }}"

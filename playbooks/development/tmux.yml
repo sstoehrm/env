@@ -97,12 +97,3 @@
           # Aggressive resize
           setw -g aggressive-resize on
         mode: '0644'
-
-    - name: Verify tmux installation
-      command: tmux -V
-      register: tmux_version
-      changed_when: false
-
-    - name: Display tmux version
-      debug:
-        msg: "{{ tmux_version.stdout }}"

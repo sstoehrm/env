@@ -53,14 +53,3 @@
           Type=Application
           Categories=Graphics;3DGraphics;Development;
         mode: '0644'
-
-    - name: Verify Blockbench installation
-      shell: "{{ local_bin }}/blockbench --version"
-      register: blockbench_version
-      changed_when: false
-      failed_when: false
-
-    - name: Display Blockbench version
-      debug:
-        msg: "Blockbench installed successfully"
-      when: blockbench_version.rc == 0

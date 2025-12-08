@@ -23,12 +23,3 @@
         rm -rf "fd-${VERSION}-x86_64-unknown-linux-gnu" "fd-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
       args:
         executable: /bin/bash
-
-    - name: Verify fd installation
-      shell: "{{ user_home }}/.local/bin/fd --version"
-      register: fd_installed_version
-      changed_when: false
-
-    - name: Display fd version
-      debug:
-        msg: "{{ fd_installed_version.stdout }}"

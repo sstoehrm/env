@@ -51,12 +51,3 @@
         path: /tmp/odin-latest.tar.gz
         state: absent
       when: not odin_check.stat.exists
-
-    - name: Verify Odin installation
-      shell: "{{ local_bin }}/odin version"
-      register: odin_version
-      changed_when: false
-
-    - name: Display Odin version
-      debug:
-        msg: "Odin version: {{ odin_version.stdout }}"

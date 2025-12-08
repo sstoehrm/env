@@ -55,12 +55,3 @@
       command: starship preset bracketed-segments -o {{ config_dir }}/starship.toml
       args:
         creates: "{{ config_dir }}/starship.toml"
-
-    - name: Verify Starship installation
-      command: starship --version
-      register: starship_version
-      changed_when: false
-
-    - name: Display Starship version
-      debug:
-        msg: "{{ starship_version.stdout }}"

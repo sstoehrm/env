@@ -12,10 +12,6 @@
       failed_when: false
       changed_when: false
 
-    - name: Display current Neovim version
-      debug:
-        msg: "Current Neovim version: {{ nvim_current_version.stdout if nvim_current_version.rc == 0 else 'Not installed' }}"
-
     - name: Remove old Neovim AppImage
       file:
         path: "{{ user_home }}/.local/bin/nvim"
@@ -42,12 +38,3 @@
         mv nvim-linux-x86_64.appimage {{ user_home }}/.local/bin/nvim
       args:
         executable: /bin/bash
-
-    - name: Verify Neovim installation
-      shell: "{{ user_home }}/.local/bin/nvim --version | head -n1"
-      register: new_nvim_version
-      changed_when: false
-
-    - name: Display installed Neovim version
-      debug:
-        msg: "Installed Neovim version: {{ new_nvim_version.stdout }}"
