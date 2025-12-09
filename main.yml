@@ -96,6 +96,3 @@
 # Applications
 - import_playbook: playbooks/applications/chromium.yml
   tags: [base, chromium]
-
-- import_playbook: playbooks/applications/keyboard-shortcuts.yml
-  tags: [base, keyboard-shortcuts]
