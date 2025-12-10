@@ -66,12 +66,17 @@
       prompt: "Do you want to install speedcrunch? (YES/no)"
       default: "yes"
       private: false
+    - name: install_clojure
+      prompt: "Do you want to install Clojure tools (rlwrap, babashka, clojure-cli)? (yes/NO)"
+      default: "no"
+      private: false
   tasks:
     - name: Set additional tools installation preferences
       set_fact:
         should_install_docker_loki_plugin: "{{ install_docker_loki_plugin | bool }}"
         should_install_game_dev: "{{ install_game_dev | bool }}"
         should_install_speedcrunch: "{{ install_speedcrunch | bool }}"
+        should_install_clojure: "{{ install_clojure | bool }}"
         cacheable: true
       when: hostvars['localhost']['should_install_additional_tools'] | default(false)
 
@@ -188,12 +193,15 @@
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml
   tags: [base, clojure, rlwrap]
+  when: hostvars['localhost']['should_install_clojure'] | default(false)
 
 - import_playbook: playbooks/development/babashka.yml
   tags: [base, clojure, babashka]
+  when: hostvars['localhost']['should_install_clojure'] | default(false)
 
 - import_playbook: playbooks/development/clojure-cli.yml
   tags: [base, clojure, clojure-cli]
+  when: hostvars['localhost']['should_install_clojure'] | default(false)
 
 # Game development
 - import_playbook: playbooks/development/odin.yml

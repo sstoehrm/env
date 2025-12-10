@@ -1,6 +1,7 @@
 ---
 - name: Tilix Terminal
   hosts: localhost
+  connection: local
 
   tasks:
     - name: Install Tilix (Ubuntu/Debian)
