@@ -10,7 +10,7 @@
         name: tilix
         state: present
         update_cache: yes
-      when: ansible_os_family == "Debian"
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install Tilix (Fedora)
       become: yes
@@ -18,7 +18,7 @@
       dnf:
         name: tilix
         state: present
-      when: ansible_os_family == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat"
 
     - name: Set Tilix as default terminal emulator (update-alternatives)
       become: yes
@@ -26,4 +26,4 @@
       alternatives:
         name: x-terminal-emulator
         path: /usr/bin/tilix.wrapper
-      when: ansible_os_family == "Debian"
+      when: ansible_facts['os_family'] == "Debian"

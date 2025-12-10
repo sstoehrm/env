@@ -9,7 +9,7 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
-      when: ansible_os_family == "Debian"
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install base packages (Ubuntu/Debian)
       become: yes
@@ -17,7 +17,7 @@
         name:
           - curl
           - git
-      when: ansible_os_family == "Debian"
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install base packages (Fedora)
       become: yes
@@ -26,4 +26,4 @@
           - curl
           - git
         state: present
-      when: ansible_os_family == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat"

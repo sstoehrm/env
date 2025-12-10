@@ -10,7 +10,7 @@
         name: speedcrunch
         state: present
         update_cache: yes
-      when: ansible_os_family == "Debian"
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install SpeedCrunch (Fedora)
       become: yes
@@ -18,4 +18,4 @@
       dnf:
         name: speedcrunch
         state: present
-      when: ansible_os_family == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat"

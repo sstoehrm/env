@@ -8,7 +8,7 @@
       become_method: sudo
       community.general.snap:
         name: chromium
-      when: ansible_os_family == "Debian"
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install Chromium (Fedora via Flatpak)
       become: yes
@@ -16,4 +16,4 @@
       community.general.flatpak:
         name: org.chromium.Chromium
         state: present
-      when: ansible_os_family == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat"
