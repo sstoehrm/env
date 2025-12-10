@@ -28,6 +28,8 @@
         code --install-extension vmware.vscode-boot-dev-pack
         code --install-extension bierner.markdown-mermaid 
         code --install-extension bpruitt-goddard.mermaid-markdown-syntax-highlighting 
-        code --install-extension  
+        code --install-extension ms-playwright.playwright 
+        code --install-extension bradlc.vscode-tailwindcss 
+        code --install-extension dbaeumer.vscode-eslint 
       args:
         executable: /bin/bash
