@@ -70,6 +70,14 @@
       prompt: "Do you want to install Clojure tools (rlwrap, babashka, clojure-cli)? (yes/NO)"
       default: "no"
       private: false
+    - name: install_nerdfonts
+      prompt: "Do you want to install Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo)? (YES/no)"
+      default: "yes"
+      private: false
+    - name: install_starship
+      prompt: "Do you want to install Starship prompt? (YES/no)"
+      default: "yes"
+      private: false
   tasks:
     - name: Set additional tools installation preferences
       set_fact:
@@ -77,6 +85,8 @@
         should_install_game_dev: "{{ install_game_dev | bool }}"
         should_install_speedcrunch: "{{ install_speedcrunch | bool }}"
         should_install_clojure: "{{ install_clojure | bool }}"
+        should_install_nerdfonts: "{{ install_nerdfonts | bool }}"
+        should_install_starship: "{{ install_starship | bool }}"
         cacheable: true
       when: hostvars['localhost']['should_install_additional_tools'] | default(false)
 
@@ -162,6 +172,10 @@
   tags: [base, neovim-deps]
   when: hostvars['localhost']['should_install_neovim'] | default(true)
 
+- import_playbook: playbooks/development/nerdfonts.yml
+  tags: [base, nerdfonts]
+  when: hostvars['localhost']['should_install_nerdfonts'] | default(false)
+
 - import_playbook: playbooks/development/lazyvim.yml
   tags: [base, lazyvim]
   when: hostvars['localhost']['should_install_lazyvim'] | default(true)
@@ -189,6 +203,7 @@
 
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]
+  when: hostvars['localhost']['should_install_starship'] | default(false)
 
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml
