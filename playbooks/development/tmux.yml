@@ -96,4 +96,20 @@
 
           # Aggressive resize
           setw -g aggressive-resize on
+
+          # Prevent tmux from starting login shell repeatedly
+          set -g default-command "${SHELL}"
         mode: '0644'
+
+    - name: Add tmux autostart to .bashrc
+      lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        line: "{{ item }}"
+        create: yes
+        mode: '0644'
+      loop:
+        - ""
+        - "# Auto-start tmux if not already running"
+        - 'if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then'
+        - "  tmux new-session -A -s main"
+        - "fi"
