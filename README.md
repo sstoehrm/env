@@ -60,7 +60,7 @@ ansible-playbook main.yml --tags "lazyvim"
 
 ### Sudo and prompts
 
-Prompts and sudo are currently not supported from ansible [issues]() in distros with sudo-rs like ubuntu 25.10.
+Prompts and sudo are currently not supported from ansible [issues](https://github.com/ansible/ansible/issues/85837) in distros with sudo-rs like ubuntu 25.10.
 
 
 The workaround is to configure sudo-ws: 
