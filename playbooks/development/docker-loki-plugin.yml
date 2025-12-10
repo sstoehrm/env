@@ -1,0 +1,34 @@
+---
+- name: Docker Loki Plugin
+  hosts: localhost
+  vars:
+    user: 'soeren'
+
+  tasks:
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Fail if Docker is not installed
+      fail:
+        msg: "Docker is not installed. Please install Docker first."
+      when: docker_check.rc != 0
+
+    - name: Install Docker Loki logging driver plugin
+      become: yes
+      become_method: sudo
+      command: docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+      register: plugin_install
+      failed_when:
+        - plugin_install.rc != 0
+        - "'already exists' not in plugin_install.stderr"
+      changed_when: plugin_install.rc == 0
+
+    - name: Enable Docker Loki plugin
+      become: yes
+      become_method: sudo
+      command: docker plugin enable loki
+      when: plugin_install.changed
+      ignore_errors: yes

@@ -1,0 +1,21 @@
+---
+- name: SpeedCrunch Calculator
+  hosts: localhost
+
+  tasks:
+    - name: Install SpeedCrunch (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name: speedcrunch
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install SpeedCrunch (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: speedcrunch
+        state: present
+      when: ansible_os_family == "RedHat"

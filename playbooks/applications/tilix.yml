@@ -1,0 +1,29 @@
+---
+- name: Tilix Terminal
+  hosts: localhost
+
+  tasks:
+    - name: Install Tilix (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name: tilix
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Tilix (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: tilix
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Set Tilix as default terminal emulator (update-alternatives)
+      become: yes
+      become_method: sudo
+      alternatives:
+        name: x-terminal-emulator
+        path: /usr/bin/tilix.wrapper
+      when: ansible_os_family == "Debian"
