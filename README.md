@@ -22,7 +22,7 @@ Install Ansible:
 
 Execute all playbooks:
 ```bash
-ansible-playbook main.yml
+ansible-playbook main.yml --ask-become-pass
 ```
 
 ### Run Specific Sections
@@ -56,7 +56,17 @@ ansible-playbook main.yml --tags "lazyvim"
 - **gamedev**: Game development tools (Odin, Blockbench)
 - **Individual tool tags**: `packages`, `signal`, `sdkman`, `nvm`, `java`, `kotlin`, `maven`, `gradle`, `visualvm`, `nodejs`, `vscode`, `opencode`, `neovim`, `neovim-deps`, `lazyvim`, `docker`, `portainer`, `lazygit`, `fd`, `ast-grep`, `tmux`, `starship`, `rlwrap`, `babashka`, `clojure-cli`, `odin`, `blockbench`, `chromium`, `keyboard-shortcuts`
 
-## Important Notes
+## Important Noteso
+
+### Sudo and prompts
+
+Prompts and sudo are currently not supported from ansible [issues]() in distros with sudo-rs like ubuntu 25.10.
+
+
+The workaround is to configure sudo-ws: 
+```bash
+sudo update-alternatives --config sudo
+```
 
 ### Distribution Support
 
