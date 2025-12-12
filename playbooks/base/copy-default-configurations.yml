@@ -1,0 +1,64 @@
+---
+# Copy default configuration files to their target locations
+# Run with: ansible-playbook playbooks/base/copy-default-configurations.yml
+
+- name: Copy Default Configurations
+  hosts: localhost
+  vars:
+    user: 'soeren'
+    user_home: '/home/soeren'
+
+    # List of configuration files to copy
+    # Each item should have:
+    #   - source: path relative to configs/ folder
+    #   - target: absolute path or path relative to user_home
+    #   - create_backup: whether to backup existing file (default: yes)
+    config_files:
+      # Example: dummy configuration
+      - source: "example.conf"
+        target: "{{ user_home }}/.config/example.conf"
+        create_backup: yes
+
+  tasks:
+    - name: Get current working directory
+      shell: pwd
+      register: playbook_dir
+      changed_when: false
+
+    - name: Set configs base path
+      set_fact:
+        configs_base: "{{ playbook_dir.stdout }}/../../configs"
+
+    - name: Create target directories for config files
+      file:
+        path: "{{ item.target | dirname }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ user }}"
+      loop: "{{ config_files }}"
+      become: yes
+      become_method: sudo
+
+    - name: Check if source config files exist
+      stat:
+        path: "{{ configs_base }}/{{ item.source }}"
+      loop: "{{ config_files }}"
+      register: source_files_check
+
+    - name: Copy configuration files
+      copy:
+        src: "{{ configs_base }}/{{ item.item.source }}"
+        dest: "{{ item.item.target }}"
+        owner: "{{ user }}"
+        mode: '0644'
+        backup: "{{ item.item.create_backup | default(true) }}"
+      loop: "{{ source_files_check.results }}"
+      when: item.stat.exists
+      become: yes
+      become_method: sudo
+
+    - name: List missing configuration files
+      debug:
+        msg: "Configuration file not found: {{ item.item.source }}"
+      loop: "{{ source_files_check.results }}"
+      when: not item.stat.exists

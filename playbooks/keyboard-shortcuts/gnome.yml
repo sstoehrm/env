@@ -12,8 +12,8 @@
   tasks:
     - name: Detect distribution
       set_fact:
-        is_ubuntu: "{{ ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' }}"
-        is_fedora: "{{ ansible_distribution == 'Fedora' or ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' }}"
+        is_ubuntu: "{{ ansible_facts['distribution'] == 'Ubuntu' or ansible_facts['distribution'] == 'Debian' }}"
+        is_fedora: "{{ ansible_facts['distribution'] == 'Fedora' or ansible_facts['distribution'] == 'RedHat' or ansible_facts['distribution'] == 'CentOS' }}"
 
     - name: Set terminal for GNOME
       set_fact:
@@ -31,7 +31,7 @@
       debug:
         msg:
           - "Configuring GNOME keyboard shortcuts"
-          - "Distribution: {{ ansible_distribution }}"
+          - "Distribution: {{ ansible_facts['distribution'] }}"
           - "Terminal: {{ terminal }}"
           - "Browser: {{ browser_cmd }}"
           - "File Manager: {{ file_manager }}"

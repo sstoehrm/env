@@ -1,0 +1,30 @@
+---
+# VSCode plugins for Soeren's development environment
+# Run with: ansible-playbook playbooks/development/vscode-plugins-soeren.yml
+
+- name: VSCode Plugins - Soeren
+  hosts: localhost
+
+  vars:
+    # Soeren's curated list of VSCode extensions
+    soeren_extensions:
+      - ms-vscode.remote-ssh  # Placeholder extension
+
+  tasks:
+    - name: Check if VSCode is installed
+      shell: command -v code
+      register: vscode_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Fail if VSCode is not installed
+      fail:
+        msg: "VSCode is not installed. Please run the vscode.yml playbook first."
+      when: vscode_check.rc != 0
+
+    - name: Install VSCode extensions
+      shell: code --install-extension {{ item }}
+      loop: "{{ soeren_extensions }}"
+      register: extension_install
+      changed_when: "'already installed' not in extension_install.stdout"
+      failed_when: extension_install.rc != 0 and 'already installed' not in extension_install.stdout

@@ -15,12 +15,12 @@
 
     - name: Detect distribution
       set_fact:
-        is_ubuntu: "{{ ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' }}"
-        is_fedora: "{{ ansible_distribution == 'Fedora' or ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' }}"
+        is_ubuntu: "{{ ansible_facts['distribution'] == 'Ubuntu' or ansible_facts['distribution'] == 'Debian' }}"
+        is_fedora: "{{ ansible_facts['distribution'] == 'Fedora' or ansible_facts['distribution'] == 'RedHat' or ansible_facts['distribution'] == 'CentOS' }}"
 
     - name: Determine default terminal based on distribution
       set_fact:
-        default_terminal: "{{ 'ptyxis' if (is_ubuntu and ansible_distribution_version is version('25.10', '>=')) else 'gnome-terminal' }}"
+        default_terminal: "{{ 'ptyxis' if (is_ubuntu and ansible_facts['distribution_version'] is version('25.10', '>=')) else 'gnome-terminal' }}"
 
     - name: Determine terminal based on installation choice and distribution
       set_fact:
@@ -38,7 +38,7 @@
       debug:
         msg:
           - "Configuring Soeren's keyboard shortcuts"
-          - "Distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Distribution: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
           - "Terminal: {{ terminal }}"
           - "Browser: {{ browser_cmd }}"
           - "File Manager: {{ file_manager }}"

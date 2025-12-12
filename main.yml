@@ -107,7 +107,7 @@
         cacheable: true
       when: hostvars['localhost']['should_install_terminal'] | default(false)
 
-- name: Prompt for keyboard shortcuts 
+- name: Prompt for keyboard shortcuts
   hosts: localhost
   connection: local
   gather_facts: false
@@ -123,12 +123,47 @@
         cacheable: true
       when: hostvars['localhost']['should_install_keyboard_shortcuts'] | default(false)
 
+- name: Prompt for VSCode plugins
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_prompt:
+    - name: install_vscode_plugins_soeren
+      prompt: "Do you want to install VSCode plugins (soeren's setup)? (YES/no)"
+      default: "yes"
+      private: false
+  tasks:
+    - name: Set VSCode plugins preference
+      set_fact:
+        should_install_vscode_plugins_soeren: "{{ install_vscode_plugins_soeren | bool }}"
+        cacheable: true
+
+- name: Prompt for configuration files
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_prompt:
+    - name: copy_default_configs
+      prompt: "Do you want to copy default configuration files? (YES/no)"
+      default: "yes"
+      private: false
+  tasks:
+    - name: Set configuration files preference
+      set_fact:
+        should_copy_default_configs: "{{ copy_default_configs | bool }}"
+        cacheable: true
+
 # Base system packages
 - import_playbook: playbooks/base/packages.yml
   tags: [base, packages]
 
 - import_playbook: playbooks/base/signal.yml
   tags: [base, signal]
+
+# Configuration files
+- import_playbook: playbooks/base/copy-default-configurations.yml
+  tags: [base, configs]
+  when: hostvars['localhost']['should_copy_default_configs'] | default(false)
 
 # Development environment managers
 - import_playbook: playbooks/development/sdkman.yml
@@ -160,6 +195,10 @@
 # IDEs and editors
 - import_playbook: playbooks/development/vscode.yml
   tags: [base, vscode]
+
+- import_playbook: playbooks/development/vscode-plugins-soeren.yml
+  tags: [base, vscode-plugins]
+  when: hostvars['localhost']['should_install_vscode_plugins_soeren'] | default(false)
 
 - import_playbook: playbooks/development/opencode.yml
   tags: [base, opencode]
