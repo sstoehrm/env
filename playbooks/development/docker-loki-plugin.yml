@@ -1,10 +1,14 @@
 ---
 - name: Docker Loki Plugin
   hosts: localhost
-  vars:
-    user: 'soeren'
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
     - name: Check if Docker is installed
       command: docker --version
       register: docker_check

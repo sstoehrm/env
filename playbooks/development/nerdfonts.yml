@@ -2,9 +2,6 @@
 - name: Nerd Fonts
   hosts: localhost
   vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
-    fonts_dir: '{{ user_home }}/.local/share/fonts'
     nerdfonts_version: 'v3.3.0'
     fonts_to_install:
       - FiraCode
@@ -13,6 +10,15 @@
       - Meslo
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+        fonts_dir: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts"
+
     - name: Ensure fonts directory exists
       file:
         path: "{{ fonts_dir }}"

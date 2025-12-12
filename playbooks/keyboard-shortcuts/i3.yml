@@ -5,11 +5,15 @@
 
 - name: i3 Keyboard Shortcuts
   hosts: localhost
-  vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
     - name: Detect distribution
       set_fact:
         is_ubuntu: "{{ ansible_facts['distribution'] == 'Ubuntu' or ansible_facts['distribution'] == 'Debian' }}"

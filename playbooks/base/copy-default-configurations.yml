@@ -5,9 +5,6 @@
 - name: Copy Default Configurations
   hosts: localhost
   vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
-
     # List of configuration files to copy
     # Each item should have:
     #   - source: path relative to configs/ folder
@@ -20,6 +17,14 @@
         create_backup: yes
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+
     - name: Get current working directory
       shell: pwd
       register: playbook_dir

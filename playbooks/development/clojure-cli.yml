@@ -1,12 +1,16 @@
 ---
 - name: Clojure CLI
   hosts: localhost
-  vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
-    local_bin: '{{ user_home }}/.local/bin'
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+        local_bin: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
     - name: Ensure ~/.local/bin directory exists
       file:
         path: "{{ local_bin }}"

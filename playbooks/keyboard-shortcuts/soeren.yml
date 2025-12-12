@@ -5,13 +5,15 @@
 
 - name: Soeren's Keyboard Shortcuts
   hosts: localhost
-  vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
 
   tasks:
     - name: Gather facts
       setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
 
     - name: Detect distribution
       set_fact:

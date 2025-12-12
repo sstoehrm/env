@@ -2,11 +2,16 @@
 - name: Java via SDKMAN
   hosts: localhost
   vars:
-    user: 'soeren'
-    user_home: '/home/soeren'
     java_version: '21.0.9-tem'
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
     - name: Install Java
       shell: |
         source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
