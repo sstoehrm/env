@@ -11,9 +11,13 @@
     #   - target: absolute path or path relative to user_home
     #   - create_backup: whether to backup existing file (default: yes)
     config_files:
-      # Example: dummy configuration
-      - source: "example.conf"
-        target: "{{ user_home }}/.config/example.conf"
+      # VSCode settings
+      - source: "vscode/settings.json"
+        target: "{{ user_home }}/.config/Code/User/settings.json"
+        create_backup: yes
+      # VSCode keybindings
+      - source: "vscode/keybindings.json"
+        target: "{{ user_home }}/.config/Code/User/keybindings.json"
         create_backup: yes
 
   tasks:

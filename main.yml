@@ -9,15 +9,15 @@
   gather_facts: false
   vars_prompt:
     - name: install_neovim
-      prompt: "Do you want to install Neovim? (YES/no)"
+      prompt: "Do you want to install Neovim? (yes/no)"
       default: "yes"
       private: false
     - name: install_additional_tools
-      prompt: "Do you want to install additional tools? (YES/no)"
+      prompt: "Do you want to install additional tools? (yes/no)"
       default: "yes"
       private: false
     - name: install_keyboard_shortcuts
-      prompt: "Do you want to install keyboard shortcuts? (YES/no)"
+      prompt: "Do you want to install keyboard shortcuts? (yes/no)"
       default: "yes"
       private: false
   tasks:
@@ -34,7 +34,7 @@
   gather_facts: false
   vars_prompt:
     - name: install_lazyvim
-      prompt: "Do you want to install LazyVim (includes lazygit)? (YES/no)"
+      prompt: "Do you want to install LazyVim (includes lazygit)? (yes/no)"
       default: "yes"
       private: false
   tasks:
@@ -49,34 +49,29 @@
   connection: local
   gather_facts: false
   vars_prompt:
-    - name: install_docker_loki_plugin
-      prompt: "Do you want to install docker loki plugin? (YES/no)"
-      default: "yes"
-      private: false
     - name: install_game_dev
-      prompt: "Do you want to install game dev tools? (yes/NO)"
+      prompt: "Do you want to install game dev tools? (yes/no)"
       default: "no"
       private: false
     - name: install_speedcrunch
-      prompt: "Do you want to install speedcrunch? (YES/no)"
+      prompt: "Do you want to install speedcrunch? (yes/no)"
       default: "yes"
       private: false
     - name: install_clojure
-      prompt: "Do you want to install Clojure tools (rlwrap, babashka, clojure-cli)? (yes/NO)"
+      prompt: "Do you want to install Clojure tools (rlwrap, babashka, clojure-cli)? (yes/no)"
       default: "no"
       private: false
     - name: install_nerdfonts
-      prompt: "Do you want to install Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo)? (YES/no)"
+      prompt: "Do you want to install Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo)? (yes/no)"
       default: "yes"
       private: false
     - name: install_starship
-      prompt: "Do you want to install Starship prompt? (YES/no)"
+      prompt: "Do you want to install Starship prompt? (yes/no)"
       default: "yes"
       private: false
   tasks:
     - name: Set additional tools installation preferences
       set_fact:
-        should_install_docker_loki_plugin: "{{ install_docker_loki_plugin | bool }}"
         should_install_game_dev: "{{ install_game_dev | bool }}"
         should_install_speedcrunch: "{{ install_speedcrunch | bool }}"
         should_install_clojure: "{{ install_clojure | bool }}"
@@ -102,28 +97,13 @@
         cacheable: true
       when: hostvars['localhost']['should_install_keyboard_shortcuts'] | default(false)
 
-- name: Prompt for VSCode plugins
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: install_vscode_plugins_soeren
-      prompt: "Do you want to install VSCode plugins (soeren's setup)? (YES/no)"
-      default: "yes"
-      private: false
-  tasks:
-    - name: Set VSCode plugins preference
-      set_fact:
-        should_install_vscode_plugins_soeren: "{{ install_vscode_plugins_soeren | bool }}"
-        cacheable: true
-
 - name: Prompt for configuration files
   hosts: localhost
   connection: local
   gather_facts: false
   vars_prompt:
     - name: copy_default_configs
-      prompt: "Do you want to copy default configuration files? (YES/no)"
+      prompt: "Do you want to copy default configuration files? (yes/no)"
       default: "yes"
       private: false
   tasks:
@@ -177,7 +157,6 @@
 
 - import_playbook: playbooks/development/vscode-plugins-soeren.yml
   tags: [base, vscode-plugins]
-  when: hostvars['localhost']['should_install_vscode_plugins_soeren'] | default(false)
 
 - import_playbook: playbooks/development/opencode.yml
   tags: [base, opencode]
@@ -252,11 +231,6 @@
 - import_playbook: playbooks/applications/speedcrunch.yml
   tags: [base, speedcrunch]
   when: hostvars['localhost']['should_install_speedcrunch'] | default(false)
-
-# Docker plugins
-- import_playbook: playbooks/development/docker-loki-plugin.yml
-  tags: [base, docker-loki]
-  when: hostvars['localhost']['should_install_docker_loki_plugin'] | default(false)
 
 # Keyboard shortcuts
 - import_playbook: playbooks/keyboard-shortcuts/soeren.yml
