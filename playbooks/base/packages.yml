@@ -17,6 +17,7 @@
         name:
           - curl
           - git
+          - xclip
       when: ansible_facts['os_family'] == "Debian"
 
     - name: Install base packages (Fedora)
@@ -25,5 +26,6 @@
         name:
           - curl
           - git
+          - xclip
         state: present
       when: ansible_facts['os_family'] == "RedHat"

@@ -12,10 +12,6 @@
       prompt: "Do you want to install Neovim? (YES/no)"
       default: "yes"
       private: false
-    - name: install_terminal
-      prompt: "Do you want to install a custom terminal? (YES/no)"
-      default: "yes"
-      private: false
     - name: install_additional_tools
       prompt: "Do you want to install additional tools? (YES/no)"
       default: "yes"
@@ -28,7 +24,6 @@
     - name: Set general preferences
       set_fact:
         should_install_neovim: "{{ install_neovim | bool }}"
-        should_install_terminal: "{{ install_terminal | bool }}"
         should_install_additional_tools: "{{ install_additional_tools | bool }}"
         should_install_keyboard_shortcuts: "{{ install_keyboard_shortcuts | bool }}"
         cacheable: true
@@ -90,22 +85,6 @@
         cacheable: true
       when: hostvars['localhost']['should_install_additional_tools'] | default(false)
 
-
-- name: Prompt for terminal
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: install_tilix
-      prompt: "Do you want to install a terminal? (TILIX)"
-      default: "tilix"
-      private: false
-  tasks:
-    - name: Set Terminal installation preference
-      set_fact:
-        should_install_tilix: "{{ install_tilix | bool }}"
-        cacheable: true
-      when: hostvars['localhost']['should_install_terminal'] | default(false)
 
 - name: Prompt for keyboard shortcuts
   hosts: localhost
@@ -269,10 +248,6 @@
 # Applications
 - import_playbook: playbooks/applications/chromium.yml
   tags: [base, chromium]
-
-- import_playbook: playbooks/applications/tilix.yml
-  tags: [base, tilix]
-  when: hostvars['localhost']['should_install_tilix'] | default(false)
 
 - import_playbook: playbooks/applications/speedcrunch.yml
   tags: [base, speedcrunch]
