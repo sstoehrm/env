@@ -69,6 +69,10 @@
       prompt: "Do you want to install Starship prompt? (yes/no)"
       default: "yes"
       private: false
+    - name: install_rocm
+      prompt: "Do you want to install ROCm (AMD GPU compute platform for Ubuntu 24.04)? (yes/no)"
+      default: "no"
+      private: false
   tasks:
     - name: Set additional tools installation preferences
       set_fact:
@@ -77,6 +81,7 @@
         should_install_clojure: "{{ install_clojure | bool }}"
         should_install_nerdfonts: "{{ install_nerdfonts | bool }}"
         should_install_starship: "{{ install_starship | bool }}"
+        should_install_rocm: "{{ install_rocm | bool }}"
         cacheable: true
       when: hostvars['localhost']['should_install_additional_tools'] | default(false)
 
@@ -112,6 +117,27 @@
         should_copy_default_configs: "{{ copy_default_configs | bool }}"
         cacheable: true
 
+- name: Prompt for git configuration
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_prompt:
+    - name: git_user_name
+      prompt: "Enter your git user name (leave empty to skip git config)"
+      default: ""
+      private: false
+    - name: git_user_email
+      prompt: "Enter your git user email (leave empty to skip git config)"
+      default: ""
+      private: false
+  tasks:
+    - name: Set git configuration preferences
+      set_fact:
+        should_configure_git: "{{ git_user_name | default('') != '' or git_user_email | default('') != '' }}"
+        git_configured_name: "{{ git_user_name | default('') }}"
+        git_configured_email: "{{ git_user_email | default('') }}"
+        cacheable: true
+
 # Base system packages
 - import_playbook: playbooks/base/packages.yml
   tags: [base, packages]
@@ -123,6 +149,11 @@
 - import_playbook: playbooks/base/copy-default-configurations.yml
   tags: [base, configs]
   when: hostvars['localhost']['should_copy_default_configs'] | default(false)
+
+# Git configuration
+- import_playbook: playbooks/development/git-config.yml
+  tags: [base, git-config]
+  when: hostvars['localhost']['should_configure_git'] | default(false)
 
 # Development environment managers
 - import_playbook: playbooks/development/sdkman.yml
@@ -201,6 +232,10 @@
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]
   when: hostvars['localhost']['should_install_starship'] | default(false)
+
+- import_playbook: playbooks/development/rocm.yml
+  tags: [base, rocm]
+  when: hostvars['localhost']['should_install_rocm'] | default(false)
 
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml

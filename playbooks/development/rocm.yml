@@ -1,0 +1,137 @@
+---
+- name: ROCm Installation for Ubuntu 24.04
+  hosts: localhost
+  connection: local
+
+  vars:
+    rocm_version: "7.1.1"
+    rocm_build: "70101-1"
+    amdgpu_install_url: "https://repo.radeon.com/amdgpu-install/{{ rocm_version }}/ubuntu/noble/amdgpu-install_{{ rocm_version }}.{{ rocm_build }}_all.deb"
+    amdgpu_install_deb: "/tmp/amdgpu-install_{{ rocm_version }}.{{ rocm_build }}_all.deb"
+    install_memory_tools: false  # Set to true to install optional AMD memory management tools
+
+  tasks:
+    - name: Check if running Ubuntu 24.04
+      fail:
+        msg: "This playbook is designed for Ubuntu 24.04 (Noble)"
+      when: ansible_facts['distribution'] != "Ubuntu" or ansible_facts['distribution_version'] != "24.04"
+
+    - name: Update apt cache
+      become: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install OEM kernel for Ubuntu 24.04
+      become: yes
+      apt:
+        name: linux-oem-24.04c
+        state: present
+
+    - name: Check current kernel version
+      command: uname -r
+      register: current_kernel
+      changed_when: false
+
+    - name: Display current kernel version
+      debug:
+        msg: "Current kernel: {{ current_kernel.stdout }}"
+
+    - name: Upgrade all packages
+      become: yes
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: Download AMD GPU installer package
+      get_url:
+        url: "{{ amdgpu_install_url }}"
+        dest: "{{ amdgpu_install_deb }}"
+        mode: '0644'
+
+    - name: Install AMD GPU installer package
+      become: yes
+      apt:
+        deb: "{{ amdgpu_install_deb }}"
+        state: present
+
+    - name: Check if ROCm is already installed
+      command: dpkg -l rocm-hip-runtime
+      register: rocm_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install ROCm with inbox drivers (no DKMS)
+      become: yes
+      command: amdgpu-install -y --usecase=rocm --no-dkms
+      when: rocm_check.rc != 0
+
+    - name: Add user to render group
+      become: yes
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: render
+        append: yes
+
+    - name: Add user to video group
+      become: yes
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: video
+        append: yes
+
+    - name: Check group membership
+      command: groups
+      register: user_groups
+      changed_when: false
+
+    - name: Display group membership
+      debug:
+        msg: "User groups: {{ user_groups.stdout }}"
+
+    # Optional: Memory management tools
+    - name: Install pipx for AMD debug tools
+      become: yes
+      apt:
+        name: pipx
+        state: present
+      when: install_memory_tools | bool
+
+    - name: Ensure pipx path is configured
+      command: pipx ensurepath
+      when: install_memory_tools | bool
+      changed_when: false
+
+    - name: Install AMD debug tools
+      command: pipx install amd-debug-tools
+      when: install_memory_tools | bool
+      register: pipx_install
+      failed_when: false
+      changed_when: pipx_install.rc == 0
+
+    - name: Clean up downloaded .deb file
+      file:
+        path: "{{ amdgpu_install_deb }}"
+        state: absent
+
+    - name: Display post-installation message
+      debug:
+        msg: |
+          ROCm installation completed!
+
+          IMPORTANT: A system reboot is required for the following changes to take effect:
+          - OEM kernel activation
+          - Group membership updates (render, video)
+
+          After reboot, verify the installation with:
+          - Check kernel: uname -r
+          - Check groups: groups
+          - Check GPU detection: rocminfo
+
+          {% if install_memory_tools %}
+          Optional memory management:
+          - Query settings: amd-ttm
+          - Adjust shared memory (in GB): amd-ttm --set <NUM> && sudo reboot
+          {% endif %}
+
+          To reboot now, run: sudo reboot

@@ -1,0 +1,30 @@
+---
+- name: Configure Git User Settings
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Set git user name
+      git_config:
+        name: user.name
+        scope: global
+        value: "{{ hostvars['localhost']['git_configured_name'] }}"
+      when: hostvars['localhost']['git_configured_name'] | default('') != ''
+
+    - name: Set git user email
+      git_config:
+        name: user.email
+        scope: global
+        value: "{{ hostvars['localhost']['git_configured_email'] }}"
+      when: hostvars['localhost']['git_configured_email'] | default('') != ''
+
+    - name: Verify git configuration
+      command: git config --global --get-regexp user.*
+      register: git_config_output
+      changed_when: false
+      failed_when: false
+
+    - name: Display git configuration
+      debug:
+        msg: "Git configuration:\n{{ git_config_output.stdout }}"
+      when: git_config_output.stdout is defined
