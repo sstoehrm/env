@@ -1,14 +1,10 @@
 ---
-# VSCode plugins for Soeren's development environment
-# Run with: ansible-playbook playbooks/development/vscode-plugins-soeren.yml
-
 - name: VSCode Plugins - Soeren
   hosts: localhost
 
   vars:
-    # Soeren's curated list of VSCode extensions
     soeren_extensions:
-      - ms-vscode.remote-ssh  # Placeholder extension
+      - betterthantomorrow.calva
 
   tasks:
     - name: Check if VSCode is installed
