@@ -51,11 +51,11 @@
   vars_prompt:
     - name: install_game_dev
       prompt: "Do you want to install game dev tools? (yes/no)"
-      default: "no"
+      default: "yes"
       private: false
     - name: install_speedcrunch
       prompt: "Do you want to install speedcrunch? (yes/no)"
-      default: "yes"
+      default: "no"
       private: false
     - name: install_clojure
       prompt: "Do you want to install Clojure tools (rlwrap, babashka, clojure-cli)? (yes/no)"

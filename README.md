@@ -12,6 +12,7 @@ The playbooks automatically detect your distribution and use the appropriate pac
 ## Installation
 
 Install Ansible:
+
 ```bash
 ./install-ansible.sh
 ```
@@ -21,6 +22,7 @@ Install Ansible:
 ### Run Complete Setup
 
 Execute all playbooks:
+
 ```bash
 ansible-playbook main.yml --ask-become-pass
 ```
@@ -31,9 +33,17 @@ ansible-playbook main.yml --ask-become-pass
 
 Prompts and sudo are currently not supported from ansible [issues](https://github.com/ansible/ansible/issues/85837) in distros with sudo-rs like ubuntu 25.10.
 
+The workaround is to configure sudo-ws:
 
-The workaround is to configure sudo-ws: 
 ```bash
 sudo update-alternatives --config sudo
 ```
 
+## TODO
+
+- [ ] ripgrep
+- [ ] claude code
+- [ ] clojure mcp (bhauman/clojure-mcp)
+- [ ] ~/.clojure/deps.edn
+- [ ] Formatter (nvim)
+- [ ] parinfer (nvim)
