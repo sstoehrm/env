@@ -9,17 +9,72 @@
     - name: Set user variables
       set_fact:
         user: "{{ ansible_facts['user_id'] }}"
-    - name: Install Docker Engine and Docker Compose (Ubuntu/Debian)
+
+    # Ubuntu/Debian - Official Docker Repository Installation
+    - name: Install prerequisites (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
         name:
-          - docker.io
-          - docker-compose
+          - ca-certificates
+          - curl
         state: present
         update_cache: yes
       when: ansible_facts['os_family'] == "Debian"
 
+    - name: Create directory for Docker GPG key (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Download Docker's official GPG key (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Add Docker repository (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      copy:
+        dest: /etc/apt/sources.list.d/docker.sources
+        content: |
+          Types: deb
+          URIs: https://download.docker.com/linux/ubuntu
+          Suites: {{ ansible_facts['distribution_release'] }}
+          Components: stable
+          Signed-By: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Update apt cache after adding Docker repository (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install Docker Engine and plugins (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    # Fedora/RedHat Installation
     - name: Install Docker Engine and Docker Compose (Fedora)
       become: yes
       become_method: sudo
@@ -30,6 +85,7 @@
         state: present
       when: ansible_facts['os_family'] == "RedHat"
 
+    # Common tasks for both distros
     - name: Add user to docker group
       become: yes
       become_method: sudo
