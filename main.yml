@@ -1,142 +1,71 @@
 ---
 # Master playbook for development environment setup
-# Run with: ansible-playbook main.yml
-# Or run specific sections with tags: ansible-playbook main.yml --ask-become-pass
+# Run with: ansible-playbook main.yml --ask-become-pass
+# Or run specific sections with tags
+#
+# Preferences are managed in preferences.json
+# Copy preferences.example.json to preferences.json and customize
 
-- name: Prompt for general preferences 
+# Load preferences
+- name: Load preferences
   hosts: localhost
   connection: local
   gather_facts: false
-  vars_prompt:
-    - name: install_neovim
-      prompt: "Do you want to install Neovim? (yes/no)"
-      default: "yes"
-      private: false
-    - name: install_additional_tools
-      prompt: "Do you want to install additional tools? (yes/no)"
-      default: "yes"
-      private: false
-    - name: install_keyboard_shortcuts
-      prompt: "Do you want to install keyboard shortcuts? (yes/no)"
-      default: "yes"
-      private: false
+
   tasks:
-    - name: Set general preferences
+    - name: Check if preferences.json exists
+      stat:
+        path: "{{ playbook_dir }}/preferences.json"
+      register: prefs_file
+
+    - name: Fail if preferences.json not found
+      fail:
+        msg: |
+          preferences.json not found!
+
+          Please create it by copying the example:
+            cp preferences.example.json preferences.json
+
+          Then edit preferences.json to customize your installation.
+      when: not prefs_file.stat.exists
+
+    - name: Read preferences.json
+      include_vars:
+        file: "{{ playbook_dir }}/preferences.json"
+        name: prefs
+
+    - name: Set preferences as facts
       set_fact:
-        should_install_neovim: "{{ install_neovim | bool }}"
-        should_install_additional_tools: "{{ install_additional_tools | bool }}"
-        should_install_keyboard_shortcuts: "{{ install_keyboard_shortcuts | bool }}"
+        should_install_neovim: "{{ prefs.install_neovim | bool }}"
+        should_install_lazyvim: "{{ prefs.install_lazyvim | bool }}"
+        should_install_additional_tools: "{{ prefs.install_additional_tools | bool }}"
+        should_install_game_dev: "{{ prefs.install_game_dev | bool }}"
+        should_install_speedcrunch: "{{ prefs.install_speedcrunch | bool }}"
+        should_install_clojure: "{{ prefs.install_clojure | bool }}"
+        should_install_nerdfonts: "{{ prefs.install_nerdfonts | bool }}"
+        should_install_starship: "{{ prefs.install_starship | bool }}"
+        should_install_zellij: "{{ prefs.install_zellij | bool }}"
+        should_install_rocm: "{{ prefs.install_rocm | bool }}"
+        should_install_keyboard_shortcuts: "{{ prefs.install_keyboard_shortcuts | bool }}"
+        should_copy_default_configs: "{{ prefs.copy_default_configs | bool }}"
+        should_configure_git: "{{ prefs.configure_git | bool }}"
+        git_configured_name: "{{ prefs.git_user_name | default('') }}"
+        git_configured_email: "{{ prefs.git_user_email | default('') }}"
         cacheable: true
 
-- name: Prompt for LazyVim installation
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: install_lazyvim
-      prompt: "Do you want to install LazyVim (includes lazygit)? (yes/no)"
-      default: "yes"
-      private: false
-  tasks:
-    - name: Set LazyVim installation preference
-      set_fact:
-        should_install_lazyvim: "{{ install_lazyvim | bool }}"
-        cacheable: true
-      when: hostvars['localhost']['should_install_neovim'] | default(false)
-
-- name: Prompt for additional tools
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: install_game_dev
-      prompt: "Do you want to install game dev tools? (yes/no)"
-      default: "yes"
-      private: false
-    - name: install_speedcrunch
-      prompt: "Do you want to install speedcrunch? (yes/no)"
-      default: "no"
-      private: false
-    - name: install_clojure
-      prompt: "Do you want to install Clojure tools (rlwrap, babashka, clojure-cli)? (yes/no)"
-      default: "no"
-      private: false
-    - name: install_nerdfonts
-      prompt: "Do you want to install Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo)? (yes/no)"
-      default: "yes"
-      private: false
-    - name: install_starship
-      prompt: "Do you want to install Starship prompt? (yes/no)"
-      default: "yes"
-      private: false
-    - name: install_rocm
-      prompt: "Do you want to install ROCm (AMD GPU compute platform for Ubuntu 24.04)? (yes/no)"
-      default: "no"
-      private: false
-  tasks:
-    - name: Set additional tools installation preferences
-      set_fact:
-        should_install_game_dev: "{{ install_game_dev | bool }}"
-        should_install_speedcrunch: "{{ install_speedcrunch | bool }}"
-        should_install_clojure: "{{ install_clojure | bool }}"
-        should_install_nerdfonts: "{{ install_nerdfonts | bool }}"
-        should_install_starship: "{{ install_starship | bool }}"
-        should_install_rocm: "{{ install_rocm | bool }}"
-        cacheable: true
-      when: hostvars['localhost']['should_install_additional_tools'] | default(false)
-
-
-- name: Prompt for keyboard shortcuts
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: install_shortcuts
-      prompt: "Do you want to install a keyboard shortcuts? (soeren)"
-      default: "soeren"
-      private: false
-  tasks:
-    - name: Set keyboard shortcut preference
-      set_fact:
-        should_install_keyboard_soeren: "{{ install_shortcuts | bool }}"
-        cacheable: true
-      when: hostvars['localhost']['should_install_keyboard_shortcuts'] | default(false)
-
-- name: Prompt for configuration files
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: copy_default_configs
-      prompt: "Do you want to copy default configuration files? (yes/no)"
-      default: "yes"
-      private: false
-  tasks:
-    - name: Set configuration files preference
-      set_fact:
-        should_copy_default_configs: "{{ copy_default_configs | bool }}"
-        cacheable: true
-
-- name: Prompt for git configuration
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  vars_prompt:
-    - name: git_user_name
-      prompt: "Enter your git user name (leave empty to skip git config)"
-      default: ""
-      private: false
-    - name: git_user_email
-      prompt: "Enter your git user email (leave empty to skip git config)"
-      default: ""
-      private: false
-  tasks:
-    - name: Set git configuration preferences
-      set_fact:
-        should_configure_git: "{{ git_user_name | default('') != '' or git_user_email | default('') != '' }}"
-        git_configured_name: "{{ git_user_name | default('') }}"
-        git_configured_email: "{{ git_user_email | default('') }}"
-        cacheable: true
+    - name: Display loaded preferences
+      debug:
+        msg:
+          - "Loaded preferences:"
+          - "  Neovim: {{ should_install_neovim }}"
+          - "  LazyVim: {{ should_install_lazyvim }}"
+          - "  Additional tools: {{ should_install_additional_tools }}"
+          - "  Game dev: {{ should_install_game_dev }}"
+          - "  Clojure: {{ should_install_clojure }}"
+          - "  Zellij: {{ should_install_zellij }}"
+          - "  Starship: {{ should_install_starship }}"
+          - "  Keyboard shortcuts: {{ should_install_keyboard_shortcuts }}"
+          - "  Git config: {{ should_configure_git }}"
 
 # Base system packages
 - import_playbook: playbooks/base/packages.yml
@@ -228,6 +157,14 @@
 
 - import_playbook: playbooks/development/tmux.yml
   tags: [base, tmux]
+
+- import_playbook: playbooks/development/zellij.yml
+  tags: [base, zellij]
+  when: hostvars['localhost']['should_install_zellij'] | default(false)
+
+- import_playbook: playbooks/development/zellij-config.yml
+  tags: [base, zellij-config]
+  when: hostvars['localhost']['should_install_zellij'] | default(false)
 
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]

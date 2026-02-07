@@ -1,0 +1,35 @@
+---
+- name: Zellij
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+        local_bin: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
+
+    - name: Ensure ~/.local/bin directory exists
+      file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Zellij is already installed
+      stat:
+        path: "{{ local_bin }}/zellij"
+      register: zellij_check
+      changed_when: false
+
+    - name: Download and install Zellij
+      shell: |
+        curl -L https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz -o /tmp/zellij.tar.gz
+        tar -xzf /tmp/zellij.tar.gz -C {{ local_bin }}
+        chmod +x {{ local_bin }}/zellij
+        rm /tmp/zellij.tar.gz
+      args:
+        executable: /bin/bash
+      when: not zellij_check.stat.exists
