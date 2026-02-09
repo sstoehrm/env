@@ -38,7 +38,7 @@
       set_fact:
         should_install_base_packages: "{{ prefs.install_base_packages | bool }}"
         should_install_signal: "{{ prefs.install_signal | bool }}"
-        should_copy_default_configs: "{{ prefs.copy_default_configs | bool }}"
+        should_copy_soeren_configs: "{{ prefs.copy_soeren_configs | bool }}"
         should_configure_git: "{{ prefs.configure_git | bool }}"
         git_configured_name: "{{ prefs.git_user_name | default('') }}"
         git_configured_email: "{{ prefs.git_user_email | default('') }}"
@@ -58,7 +58,6 @@
         should_install_game_dev: "{{ prefs.install_game_dev | bool }}"
         should_install_chromium: "{{ prefs.install_chromium | bool }}"
         should_install_speedcrunch: "{{ prefs.install_speedcrunch | bool }}"
-        should_install_keyboard_shortcuts: "{{ prefs.install_keyboard_shortcuts | bool }}"
         cacheable: true
 
     - name: Display loaded preferences
@@ -67,7 +66,7 @@
           - "Loaded preferences:"
           - "  Base packages: {{ should_install_base_packages }}"
           - "  Signal: {{ should_install_signal }}"
-          - "  Copy configs: {{ should_copy_default_configs }}"
+          - "  Copy configs: {{ should_copy_soeren_configs }}"
           - "  Git config: {{ should_configure_git }}"
           - "  JVM: {{ should_install_jvm }}"
           - "  Node.js: {{ should_install_nodejs }}"
@@ -85,7 +84,6 @@
           - "  Game dev: {{ should_install_game_dev }}"
           - "  Chromium: {{ should_install_chromium }}"
           - "  SpeedCrunch: {{ should_install_speedcrunch }}"
-          - "  Keyboard shortcuts: {{ should_install_keyboard_shortcuts }}"
 
 # Base system packages
 - import_playbook: playbooks/base/packages.yml
@@ -99,7 +97,7 @@
 # Configuration files
 - import_playbook: configs/soeren/copy-config-soeren.yml
   tags: [base, configs]
-  when: hostvars['localhost']['should_copy_default_configs'] | default(false)
+  when: hostvars['localhost']['should_copy_soeren_configs'] | default(false)
 
 # Git configuration
 - import_playbook: playbooks/development/git-config.yml
@@ -200,7 +198,6 @@
   tags: [base, zellij]
   when: hostvars['localhost']['should_install_zellij'] | default(false)
 
-
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]
   when: hostvars['localhost']['should_install_starship'] | default(false)
@@ -239,8 +236,3 @@
 - import_playbook: playbooks/applications/speedcrunch.yml
   tags: [base, speedcrunch]
   when: hostvars['localhost']['should_install_speedcrunch'] | default(false)
-
-# Keyboard shortcuts
-- import_playbook: playbooks/keyboard-shortcuts/soeren.yml
-  tags: [base, keyboard-shortcuts]
-  when: hostvars['localhost']['should_install_keyboard_shortcuts'] | default(false)
