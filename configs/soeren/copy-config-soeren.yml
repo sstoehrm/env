@@ -1,15 +1,10 @@
 ---
-# Copy default configuration files to their target locations
-# Run with: ansible-playbook playbooks/base/copy-default-configurations.yml
+# Copy Soeren's configuration files to their target locations
+# Run with: ansible-playbook configs/soeren/copy-config-soeren.yml
 
-- name: Copy Default Configurations
+- name: Copy Soeren's Configurations
   hosts: localhost
   vars:
-    # List of configuration files to copy
-    # Each item should have:
-    #   - source: path relative to configs/ folder
-    #   - target: absolute path or path relative to user_home
-    #   - create_backup: whether to backup existing file (default: yes)
     config_files:
       # VSCode settings
       - source: "vscode/settings.json"
@@ -18,6 +13,10 @@
       # VSCode keybindings
       - source: "vscode/keybindings.json"
         target: "{{ user_home }}/.config/Code/User/keybindings.json"
+        create_backup: yes
+      # Zellij configuration
+      - source: "zellij/config.kdl"
+        target: "{{ user_home }}/.config/zellij/config.kdl"
         create_backup: yes
 
   tasks:
@@ -29,14 +28,9 @@
         user: "{{ ansible_facts['user_id'] }}"
         user_home: "{{ ansible_facts['env']['HOME'] }}"
 
-    - name: Get current working directory
-      shell: pwd
-      register: playbook_dir
-      changed_when: false
-
     - name: Set configs base path
       set_fact:
-        configs_base: "{{ playbook_dir.stdout }}/../../configs"
+        configs_base: "{{ playbook_dir }}"
 
     - name: Create target directories for config files
       file:

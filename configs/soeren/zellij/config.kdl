@@ -1,0 +1,42 @@
+// Zellij configuration file
+
+// Set the default shell
+default_shell "bash"
+
+// Enable mouse support
+mouse_mode true
+
+// Enable pane frames
+pane_frames true
+
+// Simplified UI
+simplified_ui false
+
+// Theme
+theme "default"
+
+// Copy to clipboard
+copy_command "xclip -selection clipboard"
+
+// Scrollback buffer
+scroll_buffer_size 10000
+
+// Copy on select
+copy_on_select true
+
+// Default mode
+default_mode "normal"
+
+// Keybindings
+keybinds {
+    normal {
+        // Unbind Ctrl+q (quit)
+        unbind "Ctrl q"
+    }
+    shared_except "locked" {
+        bind "Alt h" { MoveFocus "Left"; }
+        bind "Alt l" { MoveFocus "Right"; }
+        bind "Alt j" { MoveFocus "Down"; }
+        bind "Alt k" { MoveFocus "Up"; }
+    }
+}

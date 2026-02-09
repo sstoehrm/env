@@ -33,3 +33,15 @@
       args:
         executable: /bin/bash
       when: not zellij_check.stat.exists
+
+    - name: Add Zellij autostart to .bashrc
+      blockinfile:
+        path: "{{ user_home }}/.bashrc"
+        marker: "# {mark} ZELLIJ AUTOSTART"
+        block: |
+          # Auto-start Zellij if not already running
+          if command -v zellij &> /dev/null && [ -z "$ZELLIJ" ]; then
+            zellij attach -c main
+          fi
+        create: yes
+        mode: '0644'
