@@ -1,0 +1,69 @@
+---
+- name: Doom Emacs Dependencies
+  hosts: localhost
+  vars:
+    nerdfonts_version: 'v3.3.0'
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+        fonts_dir: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts"
+
+    - name: Ensure fonts directory exists
+      file:
+        path: "{{ fonts_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Symbols Nerd Font Mono is already installed
+      shell: fc-list | grep -i "Symbols Nerd Font Mono"
+      register: symbols_nerd_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Symbols Nerd Font Mono
+      block:
+        - name: Download Symbols Nerd Font
+          get_url:
+            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_version }}/NerdFontsSymbolsOnly.zip"
+            dest: "/tmp/NerdFontsSymbolsOnly.zip"
+            mode: '0644'
+
+        - name: Extract Symbols Nerd Font
+          unarchive:
+            src: "/tmp/NerdFontsSymbolsOnly.zip"
+            dest: "{{ fonts_dir }}"
+            remote_src: yes
+
+        - name: Clean up downloaded archive
+          file:
+            path: "/tmp/NerdFontsSymbolsOnly.zip"
+            state: absent
+
+      when: symbols_nerd_check.rc != 0
+
+    - name: Install Symbola font (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name: fonts-symbola
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install Symbola font (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: gdouros-symbola-fonts
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Update font cache
+      command: fc-cache -fv
+      changed_when: false

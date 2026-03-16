@@ -1,0 +1,60 @@
+---
+- name: Doom Emacs
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+
+    - name: Install Emacs (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - emacs
+          - git
+          - ripgrep
+          - fd-find
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install Emacs (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name:
+          - emacs
+          - git
+          - ripgrep
+          - fd-find
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Check if Doom Emacs is already installed
+      stat:
+        path: "{{ user_home }}/.config/emacs"
+      register: doom_check
+
+    - name: Display message if Doom Emacs is already installed
+      debug:
+        msg: "Doom Emacs is already installed at {{ user_home }}/.config/emacs. Skipping installation to preserve existing configuration."
+      when: doom_check.stat.exists
+
+    - name: Clone Doom Emacs
+      git:
+        repo: 'https://github.com/doomemacs/doomemacs'
+        dest: "{{ user_home }}/.config/emacs"
+        depth: 1
+      when: not doom_check.stat.exists
+
+    - name: Run Doom install
+      shell: "{{ user_home }}/.config/emacs/bin/doom --yes install"
+      args:
+        executable: /bin/bash
+      when: not doom_check.stat.exists

@@ -58,6 +58,7 @@
         should_install_game_dev: "{{ prefs.install_game_dev | bool }}"
         should_install_chromium: "{{ prefs.install_chromium | bool }}"
         should_install_speedcrunch: "{{ prefs.install_speedcrunch | bool }}"
+        should_install_doom_emacs: "{{ prefs.install_doom_emacs | bool }}"
         cacheable: true
 
     - name: Display loaded preferences
@@ -84,6 +85,7 @@
           - "  Game dev: {{ should_install_game_dev }}"
           - "  Chromium: {{ should_install_chromium }}"
           - "  SpeedCrunch: {{ should_install_speedcrunch }}"
+          - "  Doom Emacs: {{ should_install_doom_emacs }}"
 
 # Base system packages
 - import_playbook: playbooks/base/packages.yml
@@ -236,3 +238,12 @@
 - import_playbook: playbooks/applications/speedcrunch.yml
   tags: [base, speedcrunch]
   when: hostvars['localhost']['should_install_speedcrunch'] | default(false)
+
+# Doom Emacs
+- import_playbook: playbooks/development/doom-emacs.yml
+  tags: [base, doom-emacs]
+  when: hostvars['localhost']['should_install_doom_emacs'] | default(false)
+
+- import_playbook: playbooks/development/doom-emacs-deps.yml
+  tags: [base, doom-emacs-deps]
+  when: hostvars['localhost']['should_install_doom_emacs'] | default(false)

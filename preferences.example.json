@@ -20,5 +20,6 @@
   "install_clojure": false,
   "install_game_dev": false,
   "install_chromium": true,
-  "install_speedcrunch": false
+  "install_speedcrunch": false,
+  "install_doom_emacs": false
 }
