@@ -38,4 +38,8 @@
 
   ;; Svelte — svelte-language-server
   (add-to-list 'eglot-server-programs
-               '(svelte-mode . ("svelteserver" "--stdio"))))
+               '(svelte-mode . ("svelteserver" "--stdio")))
+
+  ;; Odin — ols
+  (add-to-list 'eglot-server-programs
+               '(odin-mode . ("ols"))))

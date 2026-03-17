@@ -7,6 +7,7 @@
     clojure_lsp_version: '2026.02.20-16.08.58'
     lua_ls_version: '3.17.1'
     kotlin_lsp_version: '262.1817.0'
+    ols_version: 'dev-2026-03'
 
   tasks:
     - name: Gather facts
@@ -32,6 +33,7 @@
         - bash-language-server
         - pyright
         - svelte-language-server
+        - ols
 
     # --- npm-based LSP servers ---
 
@@ -89,21 +91,27 @@
 
     # --- Binary LSP servers ---
 
-    - name: Download zls
-      get_url:
-        url: "https://github.com/zigtools/zls/releases/download/{{ zls_version }}/zls-x86_64-linux.tar.xz"
-        dest: "/tmp/zls.tar.xz"
-        mode: '0644'
-      register: zls_download
+    - name: Check if zls is installed
+      stat:
+        path: "{{ lsp_base_dir }}/zls/zls"
+      register: zls_check
 
-    - name: Extract zls
-      shell: "tar -xJf /tmp/zls.tar.xz -C {{ lsp_base_dir }}/zls"
-      when: zls_download.changed
+    - name: Install zls
+      block:
+        - name: Download zls
+          get_url:
+            url: "https://github.com/zigtools/zls/releases/download/{{ zls_version }}/zls-x86_64-linux.tar.xz"
+            dest: "/tmp/zls.tar.xz"
+            mode: '0644'
 
-    - name: Clean up zls archive
-      file:
-        path: /tmp/zls.tar.xz
-        state: absent
+        - name: Extract zls
+          shell: "tar -xJf /tmp/zls.tar.xz -C {{ lsp_base_dir }}/zls"
+
+        - name: Clean up zls archive
+          file:
+            path: /tmp/zls.tar.xz
+            state: absent
+      when: not zls_check.stat.exists
 
     - name: Symlink zls
       file:
@@ -112,29 +120,35 @@
         state: link
         force: yes
 
-    - name: Download clojure-lsp
-      get_url:
-        url: "https://github.com/clojure-lsp/clojure-lsp/releases/download/{{ clojure_lsp_version }}/clojure-lsp-native-linux-amd64.zip"
-        dest: "/tmp/clojure-lsp.zip"
-        mode: '0644'
-      register: clojure_lsp_download
-
-    - name: Extract clojure-lsp
-      unarchive:
-        src: /tmp/clojure-lsp.zip
-        dest: "{{ lsp_base_dir }}/clojure-lsp"
-        remote_src: yes
-      when: clojure_lsp_download.changed
-
-    - name: Clean up clojure-lsp archive
-      file:
-        path: /tmp/clojure-lsp.zip
-        state: absent
-
-    - name: Make clojure-lsp executable
-      file:
+    - name: Check if clojure-lsp is installed
+      stat:
         path: "{{ lsp_base_dir }}/clojure-lsp/clojure-lsp"
-        mode: '0755'
+      register: clojure_lsp_check
+
+    - name: Install clojure-lsp
+      block:
+        - name: Download clojure-lsp
+          get_url:
+            url: "https://github.com/clojure-lsp/clojure-lsp/releases/download/{{ clojure_lsp_version }}/clojure-lsp-native-linux-amd64.zip"
+            dest: "/tmp/clojure-lsp.zip"
+            mode: '0644'
+
+        - name: Extract clojure-lsp
+          unarchive:
+            src: /tmp/clojure-lsp.zip
+            dest: "{{ lsp_base_dir }}/clojure-lsp"
+            remote_src: yes
+
+        - name: Clean up clojure-lsp archive
+          file:
+            path: /tmp/clojure-lsp.zip
+            state: absent
+
+        - name: Make clojure-lsp executable
+          file:
+            path: "{{ lsp_base_dir }}/clojure-lsp/clojure-lsp"
+            mode: '0755'
+      when: not clojure_lsp_check.stat.exists
 
     - name: Symlink clojure-lsp
       file:
@@ -143,24 +157,30 @@
         state: link
         force: yes
 
-    - name: Download lua-language-server
-      get_url:
-        url: "https://github.com/LuaLS/lua-language-server/releases/download/{{ lua_ls_version }}/lua-language-server-{{ lua_ls_version }}-linux-x64.tar.gz"
-        dest: "/tmp/lua-language-server.tar.gz"
-        mode: '0644'
-      register: lua_ls_download
+    - name: Check if lua-language-server is installed
+      stat:
+        path: "{{ lsp_base_dir }}/lua-language-server/bin/lua-language-server"
+      register: lua_ls_check
 
-    - name: Extract lua-language-server
-      unarchive:
-        src: /tmp/lua-language-server.tar.gz
-        dest: "{{ lsp_base_dir }}/lua-language-server"
-        remote_src: yes
-      when: lua_ls_download.changed
+    - name: Install lua-language-server
+      block:
+        - name: Download lua-language-server
+          get_url:
+            url: "https://github.com/LuaLS/lua-language-server/releases/download/{{ lua_ls_version }}/lua-language-server-{{ lua_ls_version }}-linux-x64.tar.gz"
+            dest: "/tmp/lua-language-server.tar.gz"
+            mode: '0644'
 
-    - name: Clean up lua-language-server archive
-      file:
-        path: /tmp/lua-language-server.tar.gz
-        state: absent
+        - name: Extract lua-language-server
+          unarchive:
+            src: /tmp/lua-language-server.tar.gz
+            dest: "{{ lsp_base_dir }}/lua-language-server"
+            remote_src: yes
+
+        - name: Clean up lua-language-server archive
+          file:
+            path: /tmp/lua-language-server.tar.gz
+            state: absent
+      when: not lua_ls_check.stat.exists
 
     - name: Symlink lua-language-server
       file:
@@ -169,29 +189,67 @@
         state: link
         force: yes
 
-    - name: Download kotlin-lsp
-      get_url:
-        url: "https://download-cdn.jetbrains.com/kotlin-lsp/{{ kotlin_lsp_version }}/kotlin-lsp-{{ kotlin_lsp_version }}-linux-x64.zip"
-        dest: "/tmp/kotlin-lsp.zip"
-        mode: '0644'
-      register: kotlin_lsp_download
+    - name: Check if kotlin-lsp is installed
+      stat:
+        path: "{{ lsp_base_dir }}/kotlin-lsp/kotlin-lsp.sh"
+      register: kotlin_lsp_check
 
-    - name: Extract kotlin-lsp
-      unarchive:
-        src: /tmp/kotlin-lsp.zip
-        dest: "{{ lsp_base_dir }}/kotlin-lsp"
-        remote_src: yes
-      when: kotlin_lsp_download.changed
+    - name: Install kotlin-lsp
+      block:
+        - name: Download kotlin-lsp
+          get_url:
+            url: "https://download-cdn.jetbrains.com/kotlin-lsp/{{ kotlin_lsp_version }}/kotlin-lsp-{{ kotlin_lsp_version }}-linux-x64.zip"
+            dest: "/tmp/kotlin-lsp.zip"
+            mode: '0644'
 
-    - name: Clean up kotlin-lsp archive
-      file:
-        path: /tmp/kotlin-lsp.zip
-        state: absent
+        - name: Extract kotlin-lsp
+          unarchive:
+            src: /tmp/kotlin-lsp.zip
+            dest: "{{ lsp_base_dir }}/kotlin-lsp"
+            remote_src: yes
+
+        - name: Clean up kotlin-lsp archive
+          file:
+            path: /tmp/kotlin-lsp.zip
+            state: absent
+      when: not kotlin_lsp_check.stat.exists
 
     - name: Symlink kotlin-lsp
       file:
-        src: "{{ lsp_base_dir }}/kotlin-lsp/bin/kotlin-lsp.sh"
+        src: "{{ lsp_base_dir }}/kotlin-lsp/kotlin-lsp.sh"
         dest: "{{ lsp_base_dir }}/bin/kotlin-lsp"
+        state: link
+        force: yes
+
+    - name: Check if ols is installed
+      stat:
+        path: "{{ lsp_base_dir }}/ols/ols-x86_64-unknown-linux-gnu"
+      register: ols_check
+
+    - name: Install ols
+      block:
+        - name: Download ols
+          get_url:
+            url: "https://github.com/DanielGavin/ols/releases/download/{{ ols_version }}/ols-x86_64-unknown-linux-gnu.zip"
+            dest: "/tmp/ols.zip"
+            mode: '0644'
+
+        - name: Extract ols
+          unarchive:
+            src: /tmp/ols.zip
+            dest: "{{ lsp_base_dir }}/ols"
+            remote_src: yes
+
+        - name: Clean up ols archive
+          file:
+            path: /tmp/ols.zip
+            state: absent
+      when: not ols_check.stat.exists
+
+    - name: Symlink ols
+      file:
+        src: "{{ lsp_base_dir }}/ols/ols-x86_64-unknown-linux-gnu"
+        dest: "{{ lsp_base_dir }}/bin/ols"
         state: link
         force: yes
 
