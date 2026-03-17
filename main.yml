@@ -105,6 +105,10 @@
   tags: [base, doom-emacs, doom-tool-deps]
   when: hostvars['localhost']['should_copy_soeren_configs'] | default(false) and hostvars['localhost']['should_install_doom_emacs'] | default(false)
 
+- import_playbook: configs/soeren/lsp/install-lsp-servers.yml
+  tags: [base, lsp]
+  when: hostvars['localhost']['should_copy_soeren_configs'] | default(false) and hostvars['localhost']['should_install_doom_emacs'] | default(false)
+
 # Git configuration
 - import_playbook: playbooks/development/git-config.yml
   tags: [base, git-config]

@@ -1,0 +1,205 @@
+---
+- name: Install LSP Servers
+  hosts: localhost
+  vars:
+    lsp_base_dir: "{{ ansible_facts['env']['HOME'] }}/lsp"
+    zls_version: '0.15.1'
+    clojure_lsp_version: '2026.02.20-16.08.58'
+    lua_ls_version: '3.17.1'
+    kotlin_lsp_version: '262.1817.0'
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+
+    - name: Create LSP directories
+      file:
+        path: "{{ lsp_base_dir }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - bin
+        - zls
+        - clojure-lsp
+        - lua-language-server
+        - kotlin-lsp
+        - typescript-language-server
+        - bash-language-server
+        - pyright
+        - svelte-language-server
+
+    # --- npm-based LSP servers ---
+
+    - name: Install typescript-language-server
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/typescript-language-server typescript-language-server typescript
+      args:
+        creates: "{{ lsp_base_dir }}/typescript-language-server/node_modules/.bin/typescript-language-server"
+
+    - name: Symlink typescript-language-server
+      file:
+        src: "{{ lsp_base_dir }}/typescript-language-server/node_modules/.bin/typescript-language-server"
+        dest: "{{ lsp_base_dir }}/bin/typescript-language-server"
+        state: link
+        force: yes
+
+    - name: Install pyright
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/pyright pyright
+      args:
+        creates: "{{ lsp_base_dir }}/pyright/node_modules/.bin/pyright-langserver"
+
+    - name: Symlink pyright-langserver
+      file:
+        src: "{{ lsp_base_dir }}/pyright/node_modules/.bin/pyright-langserver"
+        dest: "{{ lsp_base_dir }}/bin/pyright-langserver"
+        state: link
+        force: yes
+
+    - name: Install bash-language-server
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/bash-language-server bash-language-server
+      args:
+        creates: "{{ lsp_base_dir }}/bash-language-server/node_modules/.bin/bash-language-server"
+
+    - name: Symlink bash-language-server
+      file:
+        src: "{{ lsp_base_dir }}/bash-language-server/node_modules/.bin/bash-language-server"
+        dest: "{{ lsp_base_dir }}/bin/bash-language-server"
+        state: link
+        force: yes
+
+    - name: Install svelte-language-server
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/svelte-language-server svelte-language-server
+      args:
+        creates: "{{ lsp_base_dir }}/svelte-language-server/node_modules/.bin/svelteserver"
+
+    - name: Symlink svelteserver
+      file:
+        src: "{{ lsp_base_dir }}/svelte-language-server/node_modules/.bin/svelteserver"
+        dest: "{{ lsp_base_dir }}/bin/svelteserver"
+        state: link
+        force: yes
+
+    # --- Binary LSP servers ---
+
+    - name: Download zls
+      get_url:
+        url: "https://github.com/zigtools/zls/releases/download/{{ zls_version }}/zls-x86_64-linux.tar.xz"
+        dest: "/tmp/zls.tar.xz"
+        mode: '0644'
+      register: zls_download
+
+    - name: Extract zls
+      shell: "tar -xJf /tmp/zls.tar.xz -C {{ lsp_base_dir }}/zls"
+      when: zls_download.changed
+
+    - name: Clean up zls archive
+      file:
+        path: /tmp/zls.tar.xz
+        state: absent
+
+    - name: Symlink zls
+      file:
+        src: "{{ lsp_base_dir }}/zls/zls"
+        dest: "{{ lsp_base_dir }}/bin/zls"
+        state: link
+        force: yes
+
+    - name: Download clojure-lsp
+      get_url:
+        url: "https://github.com/clojure-lsp/clojure-lsp/releases/download/{{ clojure_lsp_version }}/clojure-lsp-native-linux-amd64.zip"
+        dest: "/tmp/clojure-lsp.zip"
+        mode: '0644'
+      register: clojure_lsp_download
+
+    - name: Extract clojure-lsp
+      unarchive:
+        src: /tmp/clojure-lsp.zip
+        dest: "{{ lsp_base_dir }}/clojure-lsp"
+        remote_src: yes
+      when: clojure_lsp_download.changed
+
+    - name: Clean up clojure-lsp archive
+      file:
+        path: /tmp/clojure-lsp.zip
+        state: absent
+
+    - name: Make clojure-lsp executable
+      file:
+        path: "{{ lsp_base_dir }}/clojure-lsp/clojure-lsp"
+        mode: '0755'
+
+    - name: Symlink clojure-lsp
+      file:
+        src: "{{ lsp_base_dir }}/clojure-lsp/clojure-lsp"
+        dest: "{{ lsp_base_dir }}/bin/clojure-lsp"
+        state: link
+        force: yes
+
+    - name: Download lua-language-server
+      get_url:
+        url: "https://github.com/LuaLS/lua-language-server/releases/download/{{ lua_ls_version }}/lua-language-server-{{ lua_ls_version }}-linux-x64.tar.gz"
+        dest: "/tmp/lua-language-server.tar.gz"
+        mode: '0644'
+      register: lua_ls_download
+
+    - name: Extract lua-language-server
+      unarchive:
+        src: /tmp/lua-language-server.tar.gz
+        dest: "{{ lsp_base_dir }}/lua-language-server"
+        remote_src: yes
+      when: lua_ls_download.changed
+
+    - name: Clean up lua-language-server archive
+      file:
+        path: /tmp/lua-language-server.tar.gz
+        state: absent
+
+    - name: Symlink lua-language-server
+      file:
+        src: "{{ lsp_base_dir }}/lua-language-server/bin/lua-language-server"
+        dest: "{{ lsp_base_dir }}/bin/lua-language-server"
+        state: link
+        force: yes
+
+    - name: Download kotlin-lsp
+      get_url:
+        url: "https://download-cdn.jetbrains.com/kotlin-lsp/{{ kotlin_lsp_version }}/kotlin-lsp-{{ kotlin_lsp_version }}-linux-x64.zip"
+        dest: "/tmp/kotlin-lsp.zip"
+        mode: '0644'
+      register: kotlin_lsp_download
+
+    - name: Extract kotlin-lsp
+      unarchive:
+        src: /tmp/kotlin-lsp.zip
+        dest: "{{ lsp_base_dir }}/kotlin-lsp"
+        remote_src: yes
+      when: kotlin_lsp_download.changed
+
+    - name: Clean up kotlin-lsp archive
+      file:
+        path: /tmp/kotlin-lsp.zip
+        state: absent
+
+    - name: Symlink kotlin-lsp
+      file:
+        src: "{{ lsp_base_dir }}/kotlin-lsp/bin/kotlin-lsp.sh"
+        dest: "{{ lsp_base_dir }}/bin/kotlin-lsp"
+        state: link
+        force: yes
+
+    # --- PATH setup ---
+
+    - name: Add LSP bin to PATH in .bashrc
+      lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        line: 'export PATH="$HOME/lsp/bin:$PATH"'
+        regexp: 'export PATH=.*\$HOME/lsp/bin'
+        state: present

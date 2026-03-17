@@ -29,4 +29,13 @@
   ;; Lua — lua-language-server
   (add-to-list 'eglot-server-programs
                '((lua-mode lua-ts-mode)
-                 . ("lua-language-server"))))
+                 . ("lua-language-server")))
+
+  ;; Kotlin — kotlin-lsp
+  (add-to-list 'eglot-server-programs
+               '((kotlin-mode kotlin-ts-mode)
+                 . ("kotlin-lsp" "--stdio")))
+
+  ;; Svelte — svelte-language-server
+  (add-to-list 'eglot-server-programs
+               '(svelte-mode . ("svelteserver" "--stdio"))))
