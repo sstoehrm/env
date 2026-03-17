@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOOM_REPO_DIR="$SCRIPT_DIR/../doom"
 DOOM_CONFIG_DIR="$HOME/.config/doom"
 
-files=(init.el config.el packages.el)
+files=(init.el config.el packages.el lsp.el)
 
 for file in "${files[@]}"; do
   if [[ -f "$DOOM_CONFIG_DIR/$file" ]]; then

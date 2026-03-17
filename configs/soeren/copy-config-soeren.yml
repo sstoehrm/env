@@ -28,6 +28,9 @@
       - source: "doom/packages.el"
         target: "{{ user_home }}/.config/doom/packages.el"
         create_backup: yes
+      - source: "doom/lsp.el"
+        target: "{{ user_home }}/.config/doom/lsp.el"
+        create_backup: yes
 
   tasks:
     - name: Gather facts

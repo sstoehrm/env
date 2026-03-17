@@ -101,6 +101,10 @@
   tags: [base, configs]
   when: hostvars['localhost']['should_copy_soeren_configs'] | default(false)
 
+- import_playbook: configs/soeren/doom/doom-tool-deps.yml
+  tags: [base, doom-emacs, doom-tool-deps]
+  when: hostvars['localhost']['should_copy_soeren_configs'] | default(false) and hostvars['localhost']['should_install_doom_emacs'] | default(false)
+
 # Git configuration
 - import_playbook: playbooks/development/git-config.yml
   tags: [base, git-config]

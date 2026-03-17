@@ -1,0 +1,40 @@
+---
+- name: Doom Emacs Tool Dependencies (Soeren)
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Install tool dependencies (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - shellcheck
+          - python3-isort
+          - pipenv
+          - python3-pytest
+          - python3-nose2
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install tool dependencies (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name:
+          - ShellCheck
+          - python3-isort
+          - pipenv
+          - python3-pytest
+          - python3-nose
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install grip via pipx
+      command: pipx install grip
+      register: grip_install
+      changed_when: "'installed package' in grip_install.stdout"
+      failed_when: grip_install.rc != 0 and 'already' not in grip_install.stdout
