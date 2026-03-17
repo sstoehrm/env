@@ -12,10 +12,9 @@
       apt:
         name:
           - shellcheck
-          - python3-isort
           - pipenv
           - python3-pytest
-          - python3-nose2
+          - pandoc
         state: present
         update_cache: yes
       when: ansible_facts['os_family'] == "Debian"
@@ -26,15 +25,18 @@
       dnf:
         name:
           - ShellCheck
-          - python3-isort
           - pipenv
           - python3-pytest
-          - python3-nose
+          - pandoc
         state: present
       when: ansible_facts['os_family'] == "RedHat"
 
-    - name: Install grip via pipx
-      command: pipx install grip
-      register: grip_install
-      changed_when: "'installed package' in grip_install.stdout"
-      failed_when: grip_install.rc != 0 and 'already' not in grip_install.stdout
+    - name: Install Python tools via pipx
+      command: "pipx install {{ item }}"
+      loop:
+        - grip
+        - isort
+        - nose
+      register: pipx_install
+      changed_when: "'installed package' in pipx_install.stdout"
+      failed_when: pipx_install.rc != 0 and 'already' not in pipx_install.stdout
