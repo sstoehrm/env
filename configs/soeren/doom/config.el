@@ -74,5 +74,17 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+;; Ensure ~/lsp/bin and SDKMAN are on PATH (for desktop-launched Emacs)
+(let ((home (getenv "HOME")))
+  (setenv "PATH" (concat home "/lsp/bin:"
+                         home "/.sdkman/candidates/java/current/bin:"
+                         home "/.local/bin:"
+                         (getenv "PATH")))
+  (dolist (dir (list (concat home "/lsp/bin")
+                     (concat home "/.sdkman/candidates/java/current/bin")
+                     (concat home "/.local/bin")))
+    (add-to-list 'exec-path dir))
+  (setenv "JAVA_HOME" (concat home "/.sdkman/candidates/java/current")))
+
 ;; Load LSP configuration
 (load! "lsp")

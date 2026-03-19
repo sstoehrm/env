@@ -8,6 +8,7 @@
     lua_ls_version: '3.17.1'
     kotlin_lsp_version: '262.1817.0'
     ols_version: 'dev-2026-03'
+    stylua_version: 'v2.4.0'
 
   tasks:
     - name: Gather facts
@@ -33,7 +34,12 @@
         - bash-language-server
         - pyright
         - svelte-language-server
+        - yaml-language-server
+        - json-language-server
         - ols
+        - jdtls
+        - prettier
+        - stylua
 
     # --- npm-based LSP servers ---
 
@@ -86,6 +92,32 @@
       file:
         src: "{{ lsp_base_dir }}/svelte-language-server/node_modules/.bin/svelteserver"
         dest: "{{ lsp_base_dir }}/bin/svelteserver"
+        state: link
+        force: yes
+
+    - name: Install yaml-language-server
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/yaml-language-server yaml-language-server
+      args:
+        creates: "{{ lsp_base_dir }}/yaml-language-server/node_modules/.bin/yaml-language-server"
+
+    - name: Symlink yaml-language-server
+      file:
+        src: "{{ lsp_base_dir }}/yaml-language-server/node_modules/.bin/yaml-language-server"
+        dest: "{{ lsp_base_dir }}/bin/yaml-language-server"
+        state: link
+        force: yes
+
+    - name: Install vscode-json-languageserver
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/json-language-server vscode-langservers-extracted
+      args:
+        creates: "{{ lsp_base_dir }}/json-language-server/node_modules/.bin/vscode-json-language-server"
+
+    - name: Symlink vscode-json-language-server
+      file:
+        src: "{{ lsp_base_dir }}/json-language-server/node_modules/.bin/vscode-json-language-server"
+        dest: "{{ lsp_base_dir }}/bin/vscode-json-language-server"
         state: link
         force: yes
 
@@ -212,6 +244,11 @@
           file:
             path: /tmp/kotlin-lsp.zip
             state: absent
+
+        - name: Make kotlin-lsp.sh executable
+          file:
+            path: "{{ lsp_base_dir }}/kotlin-lsp/kotlin-lsp.sh"
+            mode: '0755'
       when: not kotlin_lsp_check.stat.exists
 
     - name: Symlink kotlin-lsp
@@ -250,6 +287,85 @@
       file:
         src: "{{ lsp_base_dir }}/ols/ols-x86_64-unknown-linux-gnu"
         dest: "{{ lsp_base_dir }}/bin/ols"
+        state: link
+        force: yes
+
+    - name: Check if jdtls is installed
+      stat:
+        path: "{{ lsp_base_dir }}/jdtls/bin/jdtls"
+      register: jdtls_check
+
+    - name: Install jdtls
+      block:
+        - name: Download jdtls
+          get_url:
+            url: "https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz"
+            dest: "/tmp/jdtls.tar.gz"
+            mode: '0644'
+
+        - name: Extract jdtls
+          unarchive:
+            src: /tmp/jdtls.tar.gz
+            dest: "{{ lsp_base_dir }}/jdtls"
+            remote_src: yes
+
+        - name: Clean up jdtls archive
+          file:
+            path: /tmp/jdtls.tar.gz
+            state: absent
+      when: not jdtls_check.stat.exists
+
+    - name: Symlink jdtls
+      file:
+        src: "{{ lsp_base_dir }}/jdtls/bin/jdtls"
+        dest: "{{ lsp_base_dir }}/bin/jdtls"
+        state: link
+        force: yes
+
+    # --- Formatters ---
+
+    - name: Install prettier
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/prettier prettier prettier-plugin-svelte
+      args:
+        creates: "{{ lsp_base_dir }}/prettier/node_modules/.bin/prettier"
+
+    - name: Symlink prettier
+      file:
+        src: "{{ lsp_base_dir }}/prettier/node_modules/.bin/prettier"
+        dest: "{{ lsp_base_dir }}/bin/prettier"
+        state: link
+        force: yes
+
+    - name: Check if stylua is installed
+      stat:
+        path: "{{ lsp_base_dir }}/stylua/stylua"
+      register: stylua_check
+
+    - name: Install stylua
+      block:
+        - name: Download stylua
+          get_url:
+            url: "https://github.com/JohnnyMorganz/StyLua/releases/download/{{ stylua_version }}/stylua-linux-x86_64.zip"
+            dest: "/tmp/stylua.zip"
+            mode: '0644'
+
+        - name: Extract stylua
+          unarchive:
+            src: /tmp/stylua.zip
+            dest: "{{ lsp_base_dir }}/stylua"
+            remote_src: yes
+
+        - name: Clean up stylua archive
+          file:
+            path: /tmp/stylua.zip
+            state: absent
+      when: not stylua_check.stat.exists
+
+    - name: Symlink stylua
+      file:
+        src: "{{ lsp_base_dir }}/stylua/stylua"
+        dest: "{{ lsp_base_dir }}/bin/stylua"
         state: link
         force: yes
 
