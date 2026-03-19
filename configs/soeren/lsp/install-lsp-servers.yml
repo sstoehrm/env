@@ -9,6 +9,8 @@
     kotlin_lsp_version: '262.1817.0'
     ols_version: 'dev-2026-03'
     stylua_version: 'v2.4.0'
+    cljfmt_version: '0.16.3'
+    ktlint_version: '1.8.0'
 
   tasks:
     - name: Gather facts
@@ -40,6 +42,8 @@
         - jdtls
         - prettier
         - stylua
+        - cljfmt
+        - ktlint
 
     # --- npm-based LSP servers ---
 
@@ -366,6 +370,59 @@
       file:
         src: "{{ lsp_base_dir }}/stylua/stylua"
         dest: "{{ lsp_base_dir }}/bin/stylua"
+        state: link
+        force: yes
+
+    - name: Check if cljfmt is installed
+      stat:
+        path: "{{ lsp_base_dir }}/cljfmt/cljfmt"
+      register: cljfmt_check
+
+    - name: Install cljfmt
+      block:
+        - name: Download cljfmt
+          get_url:
+            url: "https://github.com/weavejester/cljfmt/releases/download/{{ cljfmt_version }}/cljfmt-{{ cljfmt_version }}-linux-amd64.tar.gz"
+            dest: "/tmp/cljfmt.tar.gz"
+            mode: '0644'
+
+        - name: Extract cljfmt
+          unarchive:
+            src: /tmp/cljfmt.tar.gz
+            dest: "{{ lsp_base_dir }}/cljfmt"
+            remote_src: yes
+
+        - name: Clean up cljfmt archive
+          file:
+            path: /tmp/cljfmt.tar.gz
+            state: absent
+      when: not cljfmt_check.stat.exists
+
+    - name: Symlink cljfmt
+      file:
+        src: "{{ lsp_base_dir }}/cljfmt/cljfmt"
+        dest: "{{ lsp_base_dir }}/bin/cljfmt"
+        state: link
+        force: yes
+
+    - name: Check if ktlint is installed
+      stat:
+        path: "{{ lsp_base_dir }}/ktlint/ktlint"
+      register: ktlint_check
+
+    - name: Install ktlint
+      block:
+        - name: Download ktlint
+          get_url:
+            url: "https://github.com/pinterest/ktlint/releases/download/{{ ktlint_version }}/ktlint"
+            dest: "{{ lsp_base_dir }}/ktlint/ktlint"
+            mode: '0755'
+      when: not ktlint_check.stat.exists
+
+    - name: Symlink ktlint
+      file:
+        src: "{{ lsp_base_dir }}/ktlint/ktlint"
+        dest: "{{ lsp_base_dir }}/bin/ktlint"
         state: link
         force: yes
 
