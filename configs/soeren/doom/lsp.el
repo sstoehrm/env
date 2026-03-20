@@ -2,9 +2,12 @@
 
 ;; JavaScript/TypeScript — typescript-language-server
 (with-eval-after-load 'eglot
+  ;; JS/TS + Tailwind via rass multiplexer
   (add-to-list 'eglot-server-programs
                '((js-mode js-ts-mode tsx-ts-mode typescript-ts-mode typescript-mode)
-                 . ("typescript-language-server" "--stdio")))
+                 . ("rass" "--"
+                    "typescript-language-server" "--stdio" "--"
+                    "tailwindcss-language-server" "--stdio")))
 
   ;; Python — pyright
   (add-to-list 'eglot-server-programs
@@ -36,34 +39,45 @@
                '((kotlin-mode kotlin-ts-mode)
                  . ("kotlin-lsp" "--stdio")))
 
-  ;; Svelte — svelte-language-server
+  ;; Svelte + Tailwind via rass multiplexer
   (add-to-list 'eglot-server-programs
-               '(svelte-mode . ("svelteserver" "--stdio")))
+               '(svelte-mode . ("rass" "--"
+                                "svelteserver" "--stdio" "--"
+                                "tailwindcss-language-server" "--stdio")))
 
   ;; Odin — ols
   (add-to-list 'eglot-server-programs
                '(odin-mode . ("ols")))
 
-  ;; Java — jdtls (use our installed version)
+  ;; Java — jdtls (use our installed version with custom server class)
   (add-to-list 'eglot-server-programs
-               `((java-mode java-ts-mode) . ("jdtls"
+               `((java-mode java-ts-mode) . (+jdtls-eglot-server "jdtls"
                                               "-data" ,(expand-file-name "java-workspace" doom-profile-data-dir)))))
 
 ;; Configure jdtls to use Eclipse formatter config from project .vscode/ directory
-(defun +java/jdtls-settings ()
-  "Return jdtls workspace settings, using formatter config from .vscode/ if found."
-  (let* ((root (project-root (project-current)))
-         (formatter-config (expand-file-name ".vscode/java-formatter.xml" root)))
-    (if (file-exists-p formatter-config)
-        `(:java (:format (:settings (:url ,formatter-config)
-                          :enabled t)))
-      `(:java (:format (:enabled t))))))
+(with-eval-after-load 'eglot
+  (defclass +jdtls-eglot-server (eglot-lsp-server) ()
+    :documentation "jdtls with project-local formatter config.")
 
-(setq-default eglot-workspace-configuration #'+java/jdtls-settings)
+  (cl-defmethod eglot-workspace-configuration ((server +jdtls-eglot-server) &context (major-mode java-mode))
+    (let* ((root (project-root (eglot--project server)))
+           (formatter-config (expand-file-name ".vscode/java-formatter.xml" root)))
+      (if (file-exists-p formatter-config)
+          `(:java (:format (:settings (:url ,formatter-config) :enabled t)))
+        `(:java (:format (:enabled t))))))
 
-;; Auto-start eglot for Java (Doom's java module only does this for lsp-mode)
+  (cl-defmethod eglot-workspace-configuration ((server +jdtls-eglot-server) &context (major-mode java-ts-mode))
+    (let* ((root (project-root (eglot--project server)))
+           (formatter-config (expand-file-name ".vscode/java-formatter.xml" root)))
+      (if (file-exists-p formatter-config)
+          `(:java (:format (:settings (:url ,formatter-config) :enabled t)))
+        `(:java (:format (:enabled t)))))))
+
+;; Auto-start eglot for modes without built-in Doom LSP support
 (add-hook 'java-mode-local-vars-hook #'eglot-ensure)
 (add-hook 'java-ts-mode-local-vars-hook #'eglot-ensure)
+(add-hook 'svelte-mode-hook #'eglot-ensure)
+(add-hook 'odin-mode-hook #'eglot-ensure)
 
 ;; Formatter configuration (for Doom's +format module)
 (after! format-all

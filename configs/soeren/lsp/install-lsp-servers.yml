@@ -38,6 +38,7 @@
         - svelte-language-server
         - yaml-language-server
         - json-language-server
+        - tailwindcss-language-server
         - ols
         - jdtls
         - prettier
@@ -122,6 +123,19 @@
       file:
         src: "{{ lsp_base_dir }}/json-language-server/node_modules/.bin/vscode-json-language-server"
         dest: "{{ lsp_base_dir }}/bin/vscode-json-language-server"
+        state: link
+        force: yes
+
+    - name: Install tailwindcss-language-server
+      shell: |
+        npm install --prefix {{ lsp_base_dir }}/tailwindcss-language-server @tailwindcss/language-server
+      args:
+        creates: "{{ lsp_base_dir }}/tailwindcss-language-server/node_modules/.bin/tailwindcss-language-server"
+
+    - name: Symlink tailwindcss-language-server
+      file:
+        src: "{{ lsp_base_dir }}/tailwindcss-language-server/node_modules/.bin/tailwindcss-language-server"
+        dest: "{{ lsp_base_dir }}/bin/tailwindcss-language-server"
         state: link
         force: yes
 

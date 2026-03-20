@@ -47,6 +47,7 @@
         - nose
         - black
         - pyflakes
+        - rassumfrassum
       register: pipx_install
       changed_when: "'installed package' in pipx_install.stdout"
       failed_when: pipx_install.rc != 0 and 'already' not in pipx_install.stdout
