@@ -440,6 +440,34 @@
         state: link
         force: yes
 
+    # --- lsp-bridge custom server configs ---
+
+    - name: Create lsp-bridge config directories
+      file:
+        path: "{{ user_home }}/.config/doom/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - langserver
+        - multiserver
+
+    - name: Copy lsp-bridge langserver configs
+      copy:
+        src: "{{ playbook_dir }}/../doom/langserver/{{ item }}"
+        dest: "{{ user_home }}/.config/doom/langserver/{{ item }}"
+        mode: '0644'
+      loop:
+        - kotlin-lsp.json
+
+    - name: Copy lsp-bridge multiserver configs
+      copy:
+        src: "{{ playbook_dir }}/../doom/multiserver/{{ item }}"
+        dest: "{{ user_home }}/.config/doom/multiserver/{{ item }}"
+        mode: '0644'
+      loop:
+        - typescript_tailwindcss.json
+        - svelte_tailwindcss.json
+
     # --- PATH setup ---
 
     - name: Add LSP bin to PATH in .bashrc

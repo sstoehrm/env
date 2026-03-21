@@ -100,7 +100,7 @@
        (eval +overlay)     ; run code, run (also, repls)
        lookup              ; navigate your code and its documentation
        ;;llm               ; when I said you needed friends, I didn't mean...
-       (lsp +eglot)        ; M-x vscode
+       ;;(lsp +eglot)        ; replaced by lsp-bridge
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -119,7 +119,7 @@
        ;;agda              ; types of types of types of types...
        ;;beancount         ; mind the GAAP
        ;;(cc +lsp)         ; C > C++ == 1
-       (clojure +lsp +tree-sitter) ; java with a lisp
+       (clojure +tree-sitter) ; java with a lisp
        ;;common-lisp       ; if you've seen one lisp, you've seen them all
        ;;coq               ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
@@ -143,16 +143,16 @@
        ;;(haskell +lsp)    ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ; a language you can depend on
-       (json +lsp +tree-sitter) ; At least it ain't XML
+       (json +tree-sitter) ; At least it ain't XML
        ;;janet             ; Fun fact: Janet is me!
-       (java +lsp +tree-sitter) ; the poster child for carpal tunnel syndrome
-       (javascript +tree-sitter +lsp) ; all(hope(abandon(ye(who(enter(here))))))
+       (java +tree-sitter) ; the poster child for carpal tunnel syndrome
+       (javascript +tree-sitter) ; all(hope(abandon(ye(who(enter(here))))))
        ;;julia             ; a better, faster MATLAB
-       (kotlin +lsp +tree-sitter) ; a better, slicker Java(Script)
+       (kotlin +tree-sitter) ; a better, slicker Java(Script)
        ;;latex             ; writing papers in Emacs has never been so fun
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
-       (lua +lsp +tree-sitter) ; one-based indices? one-based indices
+       (lua +tree-sitter) ; one-based indices? one-based indices
        (markdown +grip)  ; writing docs for people to ignore
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
@@ -162,7 +162,7 @@
        ;;plantuml          ; diagrams for confusing people more
        ;;graphviz          ; diagrams for confusing yourself even more
        ;;purescript        ; javascript, but functional
-       (python +tree-sitter +lsp +pyright) ; beautiful is better than ugly
+       (python +tree-sitter +pyright) ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
@@ -172,13 +172,13 @@
        ;;(rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        ;;scala             ; java, but good
        ;;(scheme +guile)   ; a fully conniving family of lisps
-       (sh +tree-sitter +lsp) ; she sells {ba,z,fi}sh shells on the C xor
+       (sh +tree-sitter) ; she sells {ba,z,fi}sh shells on the C xor
        ;;sml
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
        ;;web               ; the tubes
-       (yaml +lsp +tree-sitter) ; JSON, but readable
+       (yaml +tree-sitter) ; JSON, but readable
        ;;(zig +tree-sitter +lsp) ; C, but simpler
 
        :email

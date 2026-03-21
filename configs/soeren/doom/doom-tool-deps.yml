@@ -6,6 +6,10 @@
     - name: Gather facts
       setup:
 
+    - name: Set user variables
+      set_fact:
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+
     - name: Install tool dependencies (Ubuntu/Debian)
       become: yes
       become_method: sudo
@@ -39,6 +43,29 @@
         state: present
       when: ansible_facts['os_family'] == "RedHat"
 
+    - name: Set Emacs venv path
+      set_fact:
+        emacs_venv: "{{ user_home }}/.emacs-venv"
+
+    - name: Create Emacs Python venv
+      command: "python3 -m venv {{ emacs_venv }}"
+      args:
+        creates: "{{ emacs_venv }}/bin/python"
+
+    - name: Install lsp-bridge Python dependencies in Emacs venv
+      pip:
+        name:
+          - epc
+          - orjson
+          - sexpdata
+          - six
+          - "setuptools<81"
+          - paramiko
+          - rapidfuzz
+          - watchdog
+          - packaging
+        virtualenv: "{{ emacs_venv }}"
+
     - name: Install Python tools via pipx
       command: "pipx install {{ item }}"
       loop:
@@ -47,7 +74,6 @@
         - nose
         - black
         - pyflakes
-        - rassumfrassum
       register: pipx_install
       changed_when: "'installed package' in pipx_install.stdout"
       failed_when: pipx_install.rc != 0 and 'already' not in pipx_install.stdout

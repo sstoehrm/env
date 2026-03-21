@@ -59,3 +59,8 @@
 ;; Odin support
 (package! odin-mode
   :recipe (:host github :repo "mattt-b/odin-mode"))
+
+;; LSP-Bridge
+(package! lsp-bridge
+  :recipe (:host github :repo "manateelazycat/lsp-bridge"
+           :files ("*" (:exclude ".git"))))

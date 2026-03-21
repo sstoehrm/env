@@ -1,0 +1,10 @@
+{
+  "default": "typescript",
+  "completion": ["typescript", "tailwindcss"],
+  "completion_item_resolve": ["typescript", "tailwindcss"],
+  "diagnostics": ["typescript", "tailwindcss"],
+  "code_action": ["typescript", "tailwindcss"],
+  "execute_command": ["typescript", "tailwindcss"],
+  "hover": "typescript",
+  "formatting": "typescript"
+}
