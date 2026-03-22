@@ -40,6 +40,7 @@
         - json-language-server
         - tailwindcss-language-server
         - ols
+        - fennel-ls
         - jdtls
         - prettier
         - stylua
@@ -236,6 +237,23 @@
       file:
         src: "{{ lsp_base_dir }}/lua-language-server/bin/lua-language-server"
         dest: "{{ lsp_base_dir }}/bin/lua-language-server"
+        state: link
+        force: yes
+
+    - name: Check if fennel-ls is installed
+      stat:
+        path: "{{ lsp_base_dir }}/fennel-ls/bin/fennel-ls"
+      register: fennel_ls_check
+
+    - name: Install fennel-ls
+      shell: |
+        luarocks install --tree {{ lsp_base_dir }}/fennel-ls fennel-ls
+      when: not fennel_ls_check.stat.exists
+
+    - name: Symlink fennel-ls
+      file:
+        src: "{{ lsp_base_dir }}/fennel-ls/bin/fennel-ls"
+        dest: "{{ lsp_base_dir }}/bin/fennel-ls"
         state: link
         force: yes
 

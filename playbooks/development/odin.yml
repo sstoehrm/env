@@ -17,24 +17,27 @@
         state: directory
         mode: '0755'
 
-    - name: Check if Odin is already installed
-      stat:
-        path: "{{ local_bin }}/odin"
-      register: odin_check
+    - name: Get installed Odin version
+      command: "{{ local_bin }}/odin version"
+      register: odin_installed_version
       changed_when: false
+      failed_when: false
 
     - name: Get latest Odin release version
       uri:
         url: https://api.github.com/repos/odin-lang/Odin/releases/latest
         return_content: yes
       register: odin_release
-      when: not odin_check.stat.exists
+
+    - name: Set Odin version facts
+      set_fact:
+        odin_needs_install: "{{ odin_installed_version.rc != 0 or odin_release.json.tag_name not in (odin_installed_version.stdout | default('')) }}"
 
     - name: Download latest Odin binary
       get_url:
         url: "https://github.com/odin-lang/Odin/releases/download/{{ odin_release.json.tag_name }}/odin-linux-amd64-{{ odin_release.json.tag_name }}.tar.gz"
         dest: /tmp/odin-latest.tar.gz
-      when: not odin_check.stat.exists
+      when: odin_needs_install
 
     - name: Extract Odin binary
       unarchive:
@@ -42,16 +45,16 @@
         dest: "{{ local_bin }}"
         remote_src: yes
         extra_opts: [--strip-components=1]
-      when: not odin_check.stat.exists
+      when: odin_needs_install
 
     - name: Make Odin executable
       file:
         path: "{{ local_bin }}/odin"
         mode: '0755'
-      when: not odin_check.stat.exists
+      when: odin_needs_install
 
     - name: Clean up downloaded files
       file:
         path: /tmp/odin-latest.tar.gz
         state: absent
-      when: not odin_check.stat.exists
+      when: odin_needs_install
