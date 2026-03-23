@@ -11,14 +11,19 @@
         user: "{{ ansible_facts['user_id'] }}"
         user_home: "{{ ansible_facts['env']['HOME'] }}"
         local_bin: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
-    - name: Ensure ~/.local/bin directory exists
+        odin_dir: "{{ ansible_facts['env']['HOME'] }}/.local/odin"
+
+    - name: Ensure directories exist
       file:
-        path: "{{ local_bin }}"
+        path: "{{ item }}"
         state: directory
         mode: '0755'
+      loop:
+        - "{{ local_bin }}"
+        - "{{ odin_dir }}"
 
     - name: Get installed Odin version
-      command: "{{ local_bin }}/odin version"
+      command: "{{ odin_dir }}/odin version"
       register: odin_installed_version
       changed_when: false
       failed_when: false
@@ -39,22 +44,43 @@
         dest: /tmp/odin-latest.tar.gz
       when: odin_needs_install
 
-    - name: Extract Odin binary
+    - name: Remove old Odin installation
+      file:
+        path: "{{ odin_dir }}"
+        state: absent
+      when: odin_needs_install
+
+    - name: Recreate Odin directory
+      file:
+        path: "{{ odin_dir }}"
+        state: directory
+        mode: '0755'
+      when: odin_needs_install
+
+    - name: Extract Odin
       unarchive:
         src: /tmp/odin-latest.tar.gz
-        dest: "{{ local_bin }}"
+        dest: "{{ odin_dir }}"
         remote_src: yes
         extra_opts: [--strip-components=1]
       when: odin_needs_install
 
-    - name: Make Odin executable
+    - name: Symlink odin binary
       file:
-        path: "{{ local_bin }}/odin"
-        mode: '0755'
-      when: odin_needs_install
+        src: "{{ odin_dir }}/odin"
+        dest: "{{ local_bin }}/odin"
+        state: link
+        force: yes
 
     - name: Clean up downloaded files
       file:
         path: /tmp/odin-latest.tar.gz
         state: absent
       when: odin_needs_install
+
+    - name: Set ODIN_HOME in .bashrc
+      lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        line: 'export ODIN_HOME="{{ odin_dir }}"'
+        regexp: 'export ODIN_HOME='
+        state: present
