@@ -3,12 +3,13 @@
 ;; LSP-Bridge setup
 (use-package! lsp-bridge
   :init
-  ;; Ensure PATH is set before lsp-bridge spawns Python
+  ;; Ensure PATH and JAVA_HOME are set before lsp-bridge spawns Python
   (let ((home (getenv "HOME")))
     (setenv "PATH" (concat home "/lsp/bin:"
                            home "/.sdkman/candidates/java/current/bin:"
                            home "/.local/bin:"
-                           (getenv "PATH"))))
+                           (getenv "PATH")))
+    (setenv "JAVA_HOME" (concat home "/.sdkman/candidates/java/current")))
 
   ;; Set all lsp-bridge variables before it loads
   (setq lsp-bridge-python-command (expand-file-name "~/.emacs-venv/bin/python")
