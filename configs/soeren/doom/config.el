@@ -86,3 +86,7 @@
     (add-to-list 'exec-path dir))
   (setenv "JAVA_HOME" (concat home "/.sdkman/candidates/java/current")))
 
+(after! treesit
+  (add-to-list 'treesit-language-source-alist
+               '(svelte "https://github.com/tree-sitter-grammars/tree-sitter-svelte")))
+

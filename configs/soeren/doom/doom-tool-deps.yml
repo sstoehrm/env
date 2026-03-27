@@ -16,13 +16,9 @@
       apt:
         name:
           - shellcheck
-          - pipenv
-          - python3-pytest
           - pandoc
-          - shfmt
           - libxml2-utils
           - clang-format
-          - python3-pyflakes
         state: present
         update_cache: yes
       when: ansible_facts['os_family'] == "Debian"
@@ -33,38 +29,11 @@
       dnf:
         name:
           - ShellCheck
-          - pipenv
-          - python3-pytest
           - pandoc
-          - shfmt
           - libxml2
           - clang-tools-extra
-          - python3-pyflakes
         state: present
       when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Set Emacs venv path
-      set_fact:
-        emacs_venv: "{{ user_home }}/.emacs-venv"
-
-    - name: Create Emacs Python venv
-      command: "python3 -m venv {{ emacs_venv }}"
-      args:
-        creates: "{{ emacs_venv }}/bin/python"
-
-    - name: Install lsp-bridge Python dependencies in Emacs venv
-      pip:
-        name:
-          - epc
-          - orjson
-          - sexpdata
-          - six
-          - "setuptools<81"
-          - paramiko
-          - rapidfuzz
-          - watchdog
-          - packaging
-        virtualenv: "{{ emacs_venv }}"
 
     - name: Install Python tools via pipx
       command: "pipx install {{ item }}"
