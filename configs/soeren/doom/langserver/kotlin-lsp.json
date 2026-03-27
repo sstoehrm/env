@@ -1,7 +1,0 @@
-{
-  "name": "kotlin-lsp",
-  "languageId": "kotlin",
-  "command": ["kotlin-lsp", "--stdio"],
-  "settings": {},
-  "support-single-file": true
-}

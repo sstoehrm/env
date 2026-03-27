@@ -86,32 +86,3 @@
     (add-to-list 'exec-path dir))
   (setenv "JAVA_HOME" (concat home "/.sdkman/candidates/java/current")))
 
-;; Tree-sitter grammar sources and auto-install
-(setq treesit-language-source-alist
-      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-        (tsx        "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-        (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
-        (python     "https://github.com/tree-sitter/tree-sitter-python")
-        (json       "https://github.com/tree-sitter/tree-sitter-json")
-        (yaml       "https://github.com/tree-sitter/tree-sitter-yaml")
-        (bash       "https://github.com/tree-sitter/tree-sitter-bash" "v0.23.3")
-        (lua        "https://github.com/tree-sitter-grammars/tree-sitter-lua")
-        (java       "https://github.com/tree-sitter/tree-sitter-java")
-        (kotlin     "https://github.com/fwcd/tree-sitter-kotlin")
-        (clojure    "https://github.com/sogaiu/tree-sitter-clojure")
-        (markdown   "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown/src")
-        (markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown-inline/src")))
-
-(defun +treesit/install-all-grammars ()
-  "Install any missing or incompatible tree-sitter grammars."
-  (dolist (grammar treesit-language-source-alist)
-    (let ((lang (car grammar)))
-      (unless (ignore-errors (treesit-language-available-p lang t))
-        (message "Installing tree-sitter grammar: %s" lang)
-        (treesit-install-language-grammar lang)))))
-
-;; Auto-install missing grammars on startup
-(add-hook 'doom-after-init-hook #'+treesit/install-all-grammars)
-
-;; Load LSP configuration
-(load! "lsp")

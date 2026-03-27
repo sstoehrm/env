@@ -3,6 +3,7 @@
   hosts: localhost
   vars:
     nerdfonts_version: 'v3.3.0'
+    lsp_booster_version: 'v0.2.1'
 
   tasks:
     - name: Gather facts
@@ -67,3 +68,28 @@
     - name: Update font cache
       command: fc-cache -fv
       changed_when: false
+
+    - name: Check if emacs-lsp-booster is installed
+      stat:
+        path: "{{ user_home }}/.local/bin/emacs-lsp-booster"
+      register: lsp_booster_check
+
+    - name: Install emacs-lsp-booster
+      block:
+        - name: Download emacs-lsp-booster
+          get_url:
+            url: "https://github.com/blahgeek/emacs-lsp-booster/releases/download/{{ lsp_booster_version }}/emacs-lsp-booster_{{ lsp_booster_version }}_x86_64-unknown-linux-musl.zip"
+            dest: "/tmp/emacs-lsp-booster.zip"
+            mode: '0644'
+
+        - name: Extract emacs-lsp-booster
+          unarchive:
+            src: /tmp/emacs-lsp-booster.zip
+            dest: "{{ user_home }}/.local/bin"
+            remote_src: yes
+
+        - name: Clean up emacs-lsp-booster archive
+          file:
+            path: /tmp/emacs-lsp-booster.zip
+            state: absent
+      when: not lsp_booster_check.stat.exists
