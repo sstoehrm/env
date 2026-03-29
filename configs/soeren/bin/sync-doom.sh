@@ -15,11 +15,3 @@ for file in "${files[@]}"; do
     echo "Skipping $file (not found in $DOOM_CONFIG_DIR)"
   fi
 done
-
-# Sync lsp-bridge server configs
-for dir in langserver multiserver; do
-  if [[ -d "$DOOM_CONFIG_DIR/$dir" ]]; then
-    mkdir -p "$DOOM_REPO_DIR/$dir"
-    cp "$DOOM_CONFIG_DIR/$dir/"*.json "$DOOM_REPO_DIR/$dir/" 2>/dev/null && echo "Synced $dir/" || echo "No files in $dir/"
-  fi
-done

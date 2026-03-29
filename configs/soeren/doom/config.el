@@ -73,20 +73,21 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+;;
+;; Svelte tree-sitter grammars (install before svelte-ts-mode needs them)
+;; Pin CSS to v0.23.2 for ABI 14 compatibility (Emacs 30.2)
+;; Install to Doom's tree-sitter directory
+(require 'treesit)
+(setq treesit-extra-load-path
+      (list (expand-file-name "tree-sitter" doom-data-dir)))
+(dolist (grammar '((svelte "https://github.com/tree-sitter-grammars/tree-sitter-svelte")
+                   (css "https://github.com/tree-sitter/tree-sitter-css" "v0.23.2")))
+  (add-to-list 'treesit-language-source-alist grammar)
+  (unless (ignore-errors (treesit-language-available-p (car grammar) t))
+    (treesit-install-language-grammar (car grammar))))
 
-;; Ensure ~/lsp/bin and SDKMAN are on PATH (for desktop-launched Emacs)
-(let ((home (getenv "HOME")))
-  (setenv "PATH" (concat home "/lsp/bin:"
-                         home "/.sdkman/candidates/java/current/bin:"
-                         home "/.local/bin:"
-                         (getenv "PATH")))
-  (dolist (dir (list (concat home "/lsp/bin")
-                     (concat home "/.sdkman/candidates/java/current/bin")
-                     (concat home "/.local/bin")))
-    (add-to-list 'exec-path dir))
-  (setenv "JAVA_HOME" (concat home "/.sdkman/candidates/java/current")))
+;; Map .svelte files to svelte-ts-mode
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-ts-mode))
 
-(after! treesit
-  (add-to-list 'treesit-language-source-alist
-               '(svelte "https://github.com/tree-sitter-grammars/tree-sitter-svelte")))
-
+;; Load eglot LSP configuration
+(load! "lsp")

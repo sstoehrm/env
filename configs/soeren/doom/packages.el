@@ -52,3 +52,10 @@
 ;; (unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
+;;;
+
+(package! odin
+ :recipe (:host github :repo "mattt-b/odin-mode"))
+
+(package! svelte-ts-mode
+  :recipe (:host github :repo "leafOfTree/svelte-ts-mode"))
