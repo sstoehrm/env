@@ -1,10 +1,16 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
+local resurrect = wezterm.plugin.require("https://github.com/MLFlexer/resurrect.wezterm")
 local config = wezterm.config_builder()
 
 config.initial_cols = 120
 config.initial_rows = 28
 
+wezterm.on("format-window-title", function()
+	return "WezTerm"
+end)
+
+config.term = "wezterm"
 config.font_size = 12
 config.color_scheme = "Oxocarbon Dark (Gogh)"
 
@@ -60,6 +66,28 @@ config.keys = {
 		}),
 	},
 	{ key = "y", mods = "LEADER", action = act.ActivateCopyMode },
+	{
+		key = "S",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action_callback(function(win, pane)
+			resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
+		end),
+	},
+	{
+		key = "O",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action_callback(function(win, pane)
+			resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
+				local state = resurrect.state_manager.load_state(id, "workspace")
+				resurrect.workspace_state.restore_workspace(state, {
+					window = win,
+					relative = true,
+					restore_text = true,
+					on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+				})
+			end)
+		end),
+	},
 }
 
 config.key_tables = {
@@ -71,5 +99,12 @@ config.key_tables = {
 		{ key = "Escape", action = "PopKeyTable" },
 	},
 }
+
+resurrect.state_manager.periodic_save({
+	interval_seconds = 300,
+	save_tabs = true,
+	save_windows = true,
+	save_workspaces = true,
+})
 
 return config

@@ -1,0 +1,33 @@
+return {
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "mason-org/mason.nvim" },
+    opts = {
+      ensure_installed = {
+        "bash-language-server",
+        "black",
+        "clj-kondo",
+        "clojure-lsp",
+        "fennel-ls",
+        "gh-actions-language-server",
+        "jdtls",
+        "json-lsp",
+        "kotlin-lsp",
+        "ktfmt",
+        "ktlint",
+        "lua-language-server",
+        "markdownlint-cli2",
+        "markdown-toc",
+        "marksman",
+        "prettier",
+        "shellcheck",
+        "shfmt",
+        "stylua",
+        "svelte-language-server",
+        "tailwindcss-language-server",
+        "tree-sitter-cli",
+        "zprint-clj",
+      },
+    },
+  },
+}

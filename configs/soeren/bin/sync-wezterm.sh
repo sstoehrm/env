@@ -6,7 +6,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 src="$HOME/.wezterm.lua"
-dest="$SCRIPT_DIR/wezterm.lua"
+dest="$SCRIPT_DIR/../wezterm.lua"
 
 if [[ ! -f "$src" ]]; then
   echo "SKIP  $src (not found)"

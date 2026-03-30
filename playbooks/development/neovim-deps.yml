@@ -14,6 +14,8 @@
           - fish
           - luarocks
           - xclip
+          - imagemagick
+          - libmagickwand-dev
         state: present
         update_cache: yes
       when: ansible_facts['os_family'] == "Debian"
@@ -36,5 +38,33 @@
           - fish
           - luarocks
           - xclip
+          - ImageMagick
+          - ImageMagick-devel
         state: present
       when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install Mermaid CLI (mmdc)
+      npm:
+        name: "@mermaid-js/mermaid-cli"
+        global: yes
+
+    - name: Ensure ~/.local/bin exists
+      file:
+        path: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
+        state: directory
+        mode: "0755"
+
+    - name: Install Tectonic (LaTeX)
+      shell: curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
+      args:
+        chdir: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
+        creates: "{{ ansible_facts['env']['HOME'] }}/.local/bin/tectonic"
+
+    - name: Install WezTerm terminfo
+      shell: >
+        tempfile=$(mktemp) &&
+        curl -so "$tempfile" https://raw.githubusercontent.com/wez/wezterm/main/termwiz/data/wezterm.terminfo &&
+        tic -x -o {{ ansible_facts['env']['HOME'] }}/.terminfo "$tempfile" &&
+        rm "$tempfile"
+      args:
+        creates: "{{ ansible_facts['env']['HOME'] }}/.terminfo/w/wezterm"
