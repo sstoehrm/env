@@ -14,23 +14,27 @@
       - source: "vscode/keybindings.json"
         target: "{{ user_home }}/.config/Code/User/keybindings.json"
         create_backup: yes
+      # WezTerm configuration
+      - source: "wezterm.lua"
+        target: "{{ user_home }}/.wezterm.lua"
+        create_backup: yes
       # Zellij configuration
-      - source: "zellij/config.kdl"
-        target: "{{ user_home }}/.config/zellij/config.kdl"
-        create_backup: yes
+      # - source: "zellij/config.kdl"
+      #   target: "{{ user_home }}/.config/zellij/config.kdl"
+      #   create_backup: yes
       # Doom Emacs configuration
-      - source: "doom/init.el"
-        target: "{{ user_home }}/.config/doom/init.el"
-        create_backup: yes
-      - source: "doom/config.el"
-        target: "{{ user_home }}/.config/doom/config.el"
-        create_backup: yes
-      - source: "doom/packages.el"
-        target: "{{ user_home }}/.config/doom/packages.el"
-        create_backup: yes
-      - source: "doom/lsp.el"
-        target: "{{ user_home }}/.config/doom/lsp.el"
-        create_backup: yes
+      # - source: "doom/init.el"
+      #   target: "{{ user_home }}/.config/doom/init.el"
+      #   create_backup: yes
+      # - source: "doom/config.el"
+      #   target: "{{ user_home }}/.config/doom/config.el"
+      #   create_backup: yes
+      # - source: "doom/packages.el"
+      #   target: "{{ user_home }}/.config/doom/packages.el"
+      #   create_backup: yes
+      # - source: "doom/lsp.el"
+      #   target: "{{ user_home }}/.config/doom/lsp.el"
+      #   create_backup: yes
 
   tasks:
     - name: Gather facts
@@ -49,7 +53,7 @@
       file:
         path: "{{ item.target | dirname }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
         owner: "{{ user }}"
       loop: "{{ config_files }}"
       become: yes
@@ -66,7 +70,7 @@
         src: "{{ configs_base }}/{{ item.item.source }}"
         dest: "{{ item.item.target }}"
         owner: "{{ user }}"
-        mode: '0644'
+        mode: "0644"
         backup: "{{ item.item.create_backup | default(true) }}"
       loop: "{{ source_files_check.results }}"
       when: item.stat.exists
