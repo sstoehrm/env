@@ -2,7 +2,7 @@
 - name: Nerd Fonts
   hosts: localhost
   vars:
-    nerdfonts_version: 'v3.3.0'
+    nerdfonts_version: 'v3.4.0'
     fonts_to_install:
       - FiraCode
       - Hack

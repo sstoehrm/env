@@ -2,7 +2,7 @@
 - name: Doom Emacs Dependencies
   hosts: localhost
   vars:
-    nerdfonts_version: 'v3.3.0'
+    nerdfonts_version: 'v3.4.0'
     lsp_booster_version: 'v0.2.1'
 
   tasks:

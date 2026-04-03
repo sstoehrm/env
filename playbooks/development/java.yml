@@ -2,7 +2,7 @@
 - name: Java via SDKMAN
   hosts: localhost
   vars:
-    java_version: '21.0.9-tem'
+    java_version: '21.0.10-tem'
 
   tasks:
     - name: Gather facts

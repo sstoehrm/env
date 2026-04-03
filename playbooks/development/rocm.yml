@@ -4,8 +4,8 @@
   connection: local
 
   vars:
-    rocm_version: "7.1.1"
-    rocm_build: "70101-1"
+    rocm_version: "7.2.1"
+    rocm_build: "70201-1"
     amdgpu_install_url: "https://repo.radeon.com/amdgpu-install/{{ rocm_version }}/ubuntu/noble/amdgpu-install_{{ rocm_version }}.{{ rocm_build }}_all.deb"
     amdgpu_install_deb: "/tmp/amdgpu-install_{{ rocm_version }}.{{ rocm_build }}_all.deb"
     install_memory_tools: false  # Set to true to install optional AMD memory management tools
