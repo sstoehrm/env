@@ -3,3 +3,4 @@
 -- Add any additional options here
 
 vim.g.maplocalleader = ";"
+vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
