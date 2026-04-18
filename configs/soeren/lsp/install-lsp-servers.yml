@@ -47,6 +47,7 @@
         - cljfmt
         - ktlint
         - prettier
+        - fnlfmt
 
     # === npm-based LSP servers ===
 
@@ -406,6 +407,31 @@
       file:
         src: "{{ lsp_base_dir }}/ktlint/ktlint"
         dest: "{{ lsp_base_dir }}/bin/ktlint"
+        state: link
+        force: yes
+
+    - name: Check if fnlfmt is installed
+      stat:
+        path: "{{ lsp_base_dir }}/fnlfmt/fnlfmt"
+      register: fnlfmt_check
+
+    - name: Install fnlfmt
+      block:
+        - name: Clone fnlfmt
+          git:
+            repo: "https://git.sr.ht/~technomancy/fnlfmt"
+            dest: "{{ lsp_base_dir }}/fnlfmt"
+            depth: 1
+        - name: Build fnlfmt
+          shell: make
+          args:
+            chdir: "{{ lsp_base_dir }}/fnlfmt"
+      when: not fnlfmt_check.stat.exists
+
+    - name: Symlink fnlfmt
+      file:
+        src: "{{ lsp_base_dir }}/fnlfmt/fnlfmt"
+        dest: "{{ lsp_base_dir }}/bin/fnlfmt"
         state: link
         force: yes
 

@@ -17,7 +17,13 @@ return {
         cljc = { "zprint" },
         edn = { "zprint" },
         bb = { "zprint" },
-        -- add your languages here
+      },
+      formatters = {
+        stylua = {
+          condition = function(_, ctx)
+            return vim.bo[ctx.buf].filetype ~= "fennel"
+          end,
+        },
       },
     },
   },

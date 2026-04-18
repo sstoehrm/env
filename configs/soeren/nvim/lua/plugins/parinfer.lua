@@ -1,5 +1,6 @@
 return {
-  "gpanders/nvim-parinfer",
+  "eraserhd/parinfer-rust",
+  build = "PATH=$HOME/.cargo/bin:$PATH cargo build --release",
   ft = {
     "clojure",
     "clojurescript",
@@ -17,9 +18,4 @@ return {
     "edn",
     "bb",
   },
-  config = function()
-    -- Optional configuration
-    -- vim.g.parinfer_mode = "paren" -- default mode (smart, indent, or paren)
-    -- vim.g.parinfer_enabled = true -- enable by default
-  end,
 }
