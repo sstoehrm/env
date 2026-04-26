@@ -17,13 +17,20 @@ return {
         cljc = { "zprint" },
         edn = { "zprint" },
         bb = { "zprint" },
+        fennel = { "fnlfmt" },
+        -- add your languages here
       },
-      formatters = {
-        stylua = {
-          condition = function(_, ctx)
-            return vim.bo[ctx.buf].filetype ~= "fennel"
-          end,
-        },
+    },
+    formatters = {
+      fnlfmt = {
+        command = "fnlfmt",
+        args = { "--indents-only" },
+        stdin = true,
+      },
+      stylua = {
+        condition = function(_, ctx)
+          return vim.bo[ctx.buf].filetype ~= "fennel"
+        end,
       },
     },
   },

@@ -1,6 +1,6 @@
 return {
   "eraserhd/parinfer-rust",
-  build = "PATH=$HOME/.cargo/bin:$PATH cargo build --release",
+  build = "cargo build --release",
   ft = {
     "clojure",
     "clojurescript",
