@@ -4,12 +4,12 @@ return {
     opts = {
       ensure_installed = {
         "css",
+        "fennel",
         "html",
         "javascript",
         "latex",
         "markdown",
         "markdown_inline",
-        "norg",
         "scss",
         "svelte",
         "tsx",
