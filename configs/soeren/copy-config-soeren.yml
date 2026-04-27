@@ -18,23 +18,6 @@
       - source: "wezterm.lua"
         target: "{{ user_home }}/.wezterm.lua"
         create_backup: yes
-      # Zellij configuration
-      # - source: "zellij/config.kdl"
-      #   target: "{{ user_home }}/.config/zellij/config.kdl"
-      #   create_backup: yes
-      # Doom Emacs configuration
-      # - source: "doom/init.el"
-      #   target: "{{ user_home }}/.config/doom/init.el"
-      #   create_backup: yes
-      # - source: "doom/config.el"
-      #   target: "{{ user_home }}/.config/doom/config.el"
-      #   create_backup: yes
-      # - source: "doom/packages.el"
-      #   target: "{{ user_home }}/.config/doom/packages.el"
-      #   create_backup: yes
-      # - source: "doom/lsp.el"
-      #   target: "{{ user_home }}/.config/doom/lsp.el"
-      #   create_backup: yes
 
   tasks:
     - name: Gather facts

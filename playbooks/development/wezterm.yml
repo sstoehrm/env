@@ -1,0 +1,82 @@
+---
+- name: WezTerm
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    # Ubuntu/Debian - Official apt repository (apt.fury.io/wez)
+    # Per https://wezterm.org/install/linux.html#pre-built-deb-packages
+    - name: Install prerequisites (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install WezTerm GPG key (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      shell: |
+        curl -fsSL https://apt.fury.io/wez/gpg.key \
+          | gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg
+        chmod 644 /usr/share/keyrings/wezterm-fury.gpg
+      args:
+        creates: /usr/share/keyrings/wezterm-fury.gpg
+        executable: /bin/bash
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Add WezTerm repository (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      copy:
+        dest: /etc/apt/sources.list.d/wezterm.list
+        content: 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *'
+        mode: '0644'
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Update apt cache after adding WezTerm repository (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install WezTerm (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name: wezterm
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    # Fedora - Official copr repository
+    - name: Install dnf-plugins-core (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: dnf-plugins-core
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Enable WezTerm copr (Fedora)
+      become: yes
+      become_method: sudo
+      command: dnf copr enable -y wezfurlong/wezterm-nightly
+      args:
+        creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:wezfurlong:wezterm-nightly.repo
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install WezTerm (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: wezterm
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"

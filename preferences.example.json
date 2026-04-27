@@ -15,6 +15,7 @@
   "install_ast_grep": true,
   "install_tmux": true,
   "install_zellij": false,
+  "install_wezterm": true,
   "install_starship": true,
   "install_rocm": false,
   "install_clojure": false,

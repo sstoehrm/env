@@ -52,6 +52,7 @@
         should_install_ast_grep: "{{ prefs.install_ast_grep | bool }}"
         should_install_tmux: "{{ prefs.install_tmux | bool }}"
         should_install_zellij: "{{ prefs.install_zellij | bool }}"
+        should_install_wezterm: "{{ prefs.install_wezterm | bool }}"
         should_install_starship: "{{ prefs.install_starship | bool }}"
         should_install_rocm: "{{ prefs.install_rocm | bool }}"
         should_install_clojure: "{{ prefs.install_clojure | bool }}"
@@ -79,6 +80,7 @@
           - "  ast-grep: {{ should_install_ast_grep }}"
           - "  tmux: {{ should_install_tmux }}"
           - "  Zellij: {{ should_install_zellij }}"
+          - "  WezTerm: {{ should_install_wezterm }}"
           - "  Starship: {{ should_install_starship }}"
           - "  ROCm: {{ should_install_rocm }}"
           - "  Clojure: {{ should_install_clojure }}"
@@ -207,6 +209,10 @@
 - import_playbook: playbooks/development/zellij.yml
   tags: [base, zellij]
   when: hostvars['localhost']['should_install_zellij'] | default(false)
+
+- import_playbook: playbooks/development/wezterm.yml
+  tags: [base, wezterm]
+  when: hostvars['localhost']['should_install_wezterm'] | default(false)
 
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]

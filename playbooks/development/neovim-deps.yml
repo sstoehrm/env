@@ -3,6 +3,13 @@
   hosts: localhost
 
   tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+
     - name: Install LazyVim dependencies (Ubuntu/Debian)
       become: yes
       become_method: sudo
@@ -43,10 +50,15 @@
         state: present
       when: ansible_facts['os_family'] == "RedHat"
 
-    - name: Install Mermaid CLI (mmdc)
-      npm:
-        name: "@mermaid-js/mermaid-cli"
-        global: yes
+    - name: Install Mermaid CLI (mmdc) via NVM's npm
+      shell: |
+        export NVM_DIR="{{ user_home }}/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        npm install -g @mermaid-js/mermaid-cli
+      args:
+        executable: /bin/bash
+      register: mmdc_install
+      changed_when: "'added' in mmdc_install.stdout or 'updated' in mmdc_install.stdout"
 
     - name: Ensure ~/.local/bin exists
       file:
