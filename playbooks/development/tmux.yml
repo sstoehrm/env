@@ -10,104 +10,46 @@
       set_fact:
         user: "{{ ansible_facts['user_id'] }}"
         user_home: "{{ ansible_facts['env']['HOME'] }}"
-    - name: Install tmux
+
+    - name: Install tmux (Ubuntu/Debian)
       become: yes
       become_method: sudo
       apt:
         name: tmux
         state: present
         update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
 
-    - name: Create tmux configuration
-      copy:
-        dest: "{{ user_home }}/.tmux.conf"
-        content: |
-          # Enable mouse support
-          set -g mouse on
+    - name: Install tmux (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: tmux
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
 
-          # Set 256 color terminal
-          set -g default-terminal "screen-256color"
-
-          # Enable true color support (24-bit RGB) for all terminals
-          set -ga terminal-overrides ",*:Tc"
-
-          # Modern true color support for tmux 3.2+ (fallback gracefully on older versions)
-          set -as terminal-features ",*:RGB"
-
-          # Vi mode
-          setw -g mode-keys vi
-
-          set -g set-clipboard on
-
-          # Renumber windows when one is closed
-          set -g renumber-windows on
-
-          # Increase scrollback buffer size
-          set -g history-limit 10000
-
-          # Status bar customization
-          set -g status-position bottom
-          set -g status-style bg=default
-          set -g status-left-length 20
-          set -g status-right-length 100
-
-          # Window status
-          setw -g window-status-current-style fg=cyan,bold
-          setw -g window-status-style fg=white,dim
-
-          # Pane borders
-          set -g pane-border-style fg=brightblack
-          set -g pane-active-border-style fg=cyan
-
-          # Message style
-          set -g message-style bg=default,fg=yellow
-
-          # Split panes using | and -
-          bind | split-window -h -c "#{pane_current_path}"
-          bind - split-window -v -c "#{pane_current_path}"
-          unbind '"'
-          unbind %
-
-          # Reload config with r
-          bind r source-file ~/.tmux.conf \; display "Config reloaded!"
-
-          # Switch panes using Alt-arrow without prefix
-          bind -n M-Left select-pane -L
-          bind -n M-Right select-pane -R
-          bind -n M-Up select-pane -U
-          bind -n M-Down select-pane -D
-
-          # Vi-style pane navigation
-          bind h select-pane -L
-          bind j select-pane -D
-          bind k select-pane -U
-          bind l select-pane -R
-
-          # Using xclip
-          bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard"
-          bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard"
-
-          # Enable focus events (useful for vim/neovim)
-          set -g focus-events on
-
-          # Faster command sequences
-          set -s escape-time 0
-
-          # Aggressive resize
-          setw -g aggressive-resize on
-
-          # Prevent tmux from starting login shell repeatedly
-          set -g default-command "${SHELL}"
-        mode: '0644'
+    # tpm (Tmux Plugin Manager) — required by tmux-resurrect / tmux-continuum
+    # which the soeren tmux.conf uses for session save/restore.
+    - name: Install tpm (Tmux Plugin Manager)
+      git:
+        repo: https://github.com/tmux-plugins/tpm
+        dest: "{{ user_home }}/.tmux/plugins/tpm"
+        version: master
+        update: no
+        accept_hostkey: yes
 
     - name: Add tmux autostart to .bashrc
       blockinfile:
         path: "{{ user_home }}/.bashrc"
         marker: "# {mark} TMUX AUTOSTART"
         block: |
-          # Auto-start tmux if not already running
+          # Auto-start tmux with the saved layout if available, fallback to "main"
           if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-            tmux new-session -A -s main
+              if [ -x "$HOME/.config/tmux/startup.sh" ]; then
+                  exec "$HOME/.config/tmux/startup.sh"
+              else
+                  tmux new-session -A -s main
+              fi
           fi
         create: yes
         mode: '0644'

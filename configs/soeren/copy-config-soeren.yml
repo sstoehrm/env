@@ -18,6 +18,25 @@
       - source: "wezterm.lua"
         target: "{{ user_home }}/.wezterm.lua"
         create_backup: yes
+      # Kitty configuration
+      - source: "kitty/kitty.conf"
+        target: "{{ user_home }}/.config/kitty/kitty.conf"
+        create_backup: yes
+      - source: "kitty/startup.session"
+        target: "{{ user_home }}/.config/kitty/startup.session"
+        create_backup: yes
+      # Ghostty configuration
+      - source: "ghostty/config"
+        target: "{{ user_home }}/.config/ghostty/config"
+        create_backup: yes
+      # Tmux configuration
+      - source: "tmux/tmux.conf"
+        target: "{{ user_home }}/.tmux.conf"
+        create_backup: yes
+      - source: "tmux/startup.sh"
+        target: "{{ user_home }}/.config/tmux/startup.sh"
+        create_backup: yes
+        mode: "0755"
 
   tasks:
     - name: Gather facts
@@ -53,7 +72,7 @@
         src: "{{ configs_base }}/{{ item.item.source }}"
         dest: "{{ item.item.target }}"
         owner: "{{ user }}"
-        mode: "0644"
+        mode: "{{ item.item.mode | default('0644') }}"
         backup: "{{ item.item.create_backup | default(true) }}"
       loop: "{{ source_files_check.results }}"
       when: item.stat.exists

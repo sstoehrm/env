@@ -1,0 +1,26 @@
+---
+- name: Kitty
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    # Ubuntu/Debian - distro package (universe)
+    - name: Install Kitty (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name: kitty
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    # Fedora - distro package
+    - name: Install Kitty (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: kitty
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"

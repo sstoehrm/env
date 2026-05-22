@@ -1,0 +1,39 @@
+---
+- name: Ghostty
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    # Ubuntu/Debian — community-maintained .deb installer
+    # Per https://ghostty.org/docs/install/binary#ubuntu
+    # (Ghostty has no official upstream apt repo; this script downloads
+    # the latest .deb from mkasberg/ghostty-ubuntu and installs it.)
+    - name: Install ghostty via community installer (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      shell: |
+        curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh | /bin/bash
+      args:
+        executable: /bin/bash
+        creates: /usr/bin/ghostty
+      when: ansible_facts['os_family'] == "Debian"
+
+    # Fedora — community-maintained COPR repository
+    # Per https://ghostty.org/docs/install/binary#fedora
+    - name: Enable Ghostty COPR (Fedora)
+      become: yes
+      become_method: sudo
+      command: dnf copr enable -y scottames/ghostty
+      args:
+        creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install ghostty (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: ghostty
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"

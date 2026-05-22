@@ -1,0 +1,90 @@
+# ~/.config/ghostty/config
+# Companion to configs/soeren/tmux/tmux.conf — by design ghostty delegates
+# multiplexing (tabs/splits/sessions) to tmux. The leader chord bindings
+# below are commented out so tmux owns ctrl+p; uncomment them to use
+# ghostty's own splits/tabs instead (e.g. when running ghostty without tmux).
+
+# --- Appearance ---
+font-size = 12
+
+# Oxocarbon Dark color scheme (matches wezterm's "Oxocarbon Dark (Gogh)")
+background = 161616
+foreground = ffffff
+selection-background = c0c0c0
+selection-foreground = 161616
+cursor-color = ffffff
+
+palette = 0=#262626
+palette = 1=#ff7eb6
+palette = 2=#42be65
+palette = 3=#82cfff
+palette = 4=#33b1ff
+palette = 5=#ee5396
+palette = 6=#3ddbd9
+palette = 7=#dde1e6
+palette = 8=#393939
+palette = 9=#ff7eb6
+palette = 10=#42be65
+palette = 11=#82cfff
+palette = 12=#33b1ff
+palette = 13=#ee5396
+palette = 14=#3ddbd9
+palette = 15=#ffffff
+
+# Initial window size (matches wezterm.lua: 120 cols × 28 rows)
+window-width = 120
+window-height = 28
+
+# --- Pane navigation (always active, harmless under tmux) ---
+keybind = alt+h=goto_split:left
+keybind = alt+j=goto_split:down
+keybind = alt+k=goto_split:up
+keybind = alt+l=goto_split:right
+keybind = alt+left=goto_split:left
+keybind = alt+down=goto_split:down
+keybind = alt+up=goto_split:up
+keybind = alt+right=goto_split:right
+
+# === Ghostty-native leader bindings (disabled by default for tmux pairing) ===
+# If you uncomment these, tmux will not receive ctrl+p — pick one.
+#
+# Splits (wezterm SplitVertical=top/bottom -> new_split:down; SplitHorizontal=left/right -> new_split:right)
+# keybind = ctrl+p>h=new_split:down
+# keybind = ctrl+p>v=new_split:right
+#
+# Pane zoom and close
+# keybind = ctrl+p>f=toggle_split_zoom
+# keybind = ctrl+p>q=close_surface
+#
+# Tab management
+# keybind = ctrl+p>shift+c=new_tab
+# keybind = ctrl+p>shift+q=close_tab
+# keybind = ctrl+p>shift+h=previous_tab
+# keybind = ctrl+p>shift+l=next_tab
+# keybind = ctrl+p>shift+left=previous_tab
+# keybind = ctrl+p>shift+right=next_tab
+#
+# Activate tab N
+# keybind = ctrl+p>1=goto_tab:1
+# keybind = ctrl+p>2=goto_tab:2
+# keybind = ctrl+p>3=goto_tab:3
+# keybind = ctrl+p>4=goto_tab:4
+# keybind = ctrl+p>5=goto_tab:5
+# keybind = ctrl+p>6=goto_tab:6
+# keybind = ctrl+p>7=goto_tab:7
+# keybind = ctrl+p>8=goto_tab:8
+# keybind = ctrl+p>9=goto_tab:9
+#
+# Resize mode (modal key table — ghostty's analog of wezterm key_tables)
+# keybind = ctrl+p>r=activate_key_table:resize_mode
+# keybind = resize_mode/h=resize_split:left,2
+# keybind = resize_mode/j=resize_split:down,2
+# keybind = resize_mode/k=resize_split:up,2
+# keybind = resize_mode/l=resize_split:right,2
+# keybind = resize_mode/escape=deactivate_key_table
+# keybind = resize_mode/catch_all=ignore
+
+# Things ghostty does NOT support (handled by tmux instead):
+#   - Startup multi-tab/split layout      (use configs/soeren/tmux/startup.sh)
+#   - Session save/restore (resurrect)    (use tmux-resurrect + tmux-continuum)
+#   - Set-tab-title prompt                (no prompt action in ghostty)

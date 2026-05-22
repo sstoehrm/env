@@ -1,0 +1,42 @@
+# Kitty startup session — recreates the wezterm gui-startup tabs.
+# Kitty session files run sequentially: each `launch` splits/spawns relative
+# to the previously focused window, so the exact pixel ratios from
+# wezterm.lua are approximated using built-in layouts (tall/grid).
+
+# Tab 1: "env" — 1 left, 2 right (tall layout fits this exactly)
+new_tab env
+layout tall
+cd ~/repos
+launch
+launch
+launch
+focus
+
+# Tab 2: "dev 1" — 8 panes, approximated as a grid
+new_tab dev 1
+layout grid
+cd ~/repos/private
+launch
+launch
+launch
+launch
+launch
+launch
+launch
+launch
+
+# Tab 3: "dev 2" — 1 left, 2 right
+new_tab dev 2
+layout tall
+cd ~/repos/private
+launch
+launch
+launch
+
+# Tab 4: "stuff" — 2x2 grid
+new_tab stuff
+layout grid
+launch
+launch
+launch
+launch

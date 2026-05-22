@@ -53,6 +53,8 @@
         should_install_tmux: "{{ prefs.install_tmux | bool }}"
         should_install_zellij: "{{ prefs.install_zellij | bool }}"
         should_install_wezterm: "{{ prefs.install_wezterm | bool }}"
+        should_install_kitty: "{{ prefs.install_kitty | bool }}"
+        should_install_ghostty: "{{ prefs.install_ghostty | bool }}"
         should_install_starship: "{{ prefs.install_starship | bool }}"
         should_install_rocm: "{{ prefs.install_rocm | bool }}"
         should_install_clojure: "{{ prefs.install_clojure | bool }}"
@@ -81,6 +83,8 @@
           - "  tmux: {{ should_install_tmux }}"
           - "  Zellij: {{ should_install_zellij }}"
           - "  WezTerm: {{ should_install_wezterm }}"
+          - "  Kitty: {{ should_install_kitty }}"
+          - "  Ghostty: {{ should_install_ghostty }}"
           - "  Starship: {{ should_install_starship }}"
           - "  ROCm: {{ should_install_rocm }}"
           - "  Clojure: {{ should_install_clojure }}"
@@ -213,6 +217,14 @@
 - import_playbook: playbooks/development/wezterm.yml
   tags: [base, wezterm]
   when: hostvars['localhost']['should_install_wezterm'] | default(false)
+
+- import_playbook: playbooks/development/kitty.yml
+  tags: [base, kitty]
+  when: hostvars['localhost']['should_install_kitty'] | default(false)
+
+- import_playbook: playbooks/development/ghostty.yml
+  tags: [base, ghostty]
+  when: hostvars['localhost']['should_install_ghostty'] | default(false)
 
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]

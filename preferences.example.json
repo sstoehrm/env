@@ -16,6 +16,8 @@
   "install_tmux": true,
   "install_zellij": false,
   "install_wezterm": true,
+  "install_kitty": true,
+  "install_ghostty": true,
   "install_starship": true,
   "install_rocm": false,
   "install_clojure": false,
