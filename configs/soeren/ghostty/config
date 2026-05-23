@@ -4,6 +4,9 @@
 # below are commented out so tmux owns ctrl+p; uncomment them to use
 # ghostty's own splits/tabs instead (e.g. when running ghostty without tmux).
 
+# --- Bell ---
+bell = none
+
 # --- Appearance ---
 font-size = 12
 
