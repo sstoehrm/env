@@ -43,13 +43,9 @@
         path: "{{ user_home }}/.bashrc"
         marker: "# {mark} TMUX AUTOSTART"
         block: |
-          # Auto-start tmux with the saved layout if available, fallback to "main"
+          # Auto-attach to (or create) the "main" tmux session for interactive shells
           if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-              if [ -x "$HOME/.config/tmux/startup.sh" ]; then
-                  exec "$HOME/.config/tmux/startup.sh"
-              else
-                  tmux new-session -A -s main
-              fi
+              tmux new-session -A -s main
           fi
         create: yes
         mode: '0644'

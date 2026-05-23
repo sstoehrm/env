@@ -7,43 +7,46 @@
 # --- Appearance ---
 font-size = 12
 
-# Oxocarbon Dark color scheme (matches wezterm's "Oxocarbon Dark (Gogh)")
-background = 161616
-foreground = ffffff
-selection-background = c0c0c0
-selection-foreground = 161616
-cursor-color = ffffff
+# Carbonfox color scheme
+background = #161616
+foreground = #f2f4f8
+selection-background = #2a2a2a
+selection-foreground = #f2f4f8
+cursor-color = #f2f4f8
+cursor-text = #161616
 
-palette = 0=#262626
-palette = 1=#ff7eb6
-palette = 2=#42be65
-palette = 3=#82cfff
-palette = 4=#33b1ff
-palette = 5=#ee5396
-palette = 6=#3ddbd9
-palette = 7=#dde1e6
-palette = 8=#393939
-palette = 9=#ff7eb6
-palette = 10=#42be65
-palette = 11=#82cfff
-palette = 12=#33b1ff
-palette = 13=#ee5396
-palette = 14=#3ddbd9
-palette = 15=#ffffff
+palette = 0=#282828
+palette = 1=#ee5396
+palette = 2=#25be6a
+palette = 3=#08bdba
+palette = 4=#78a9ff
+palette = 5=#be95ff
+palette = 6=#33b1ff
+palette = 7=#dfdfe0
+palette = 8=#484848
+palette = 9=#f16da6
+palette = 10=#46c880
+palette = 11=#2dc7c4
+palette = 12=#8cb6ff
+palette = 13=#c8a5ff
+palette = 14=#52bdff
+palette = 15=#e4e4e5
 
 # Initial window size (matches wezterm.lua: 120 cols × 28 rows)
 window-width = 120
 window-height = 28
 
-# --- Pane navigation (always active, harmless under tmux) ---
-keybind = alt+h=goto_split:left
-keybind = alt+j=goto_split:down
-keybind = alt+k=goto_split:up
-keybind = alt+l=goto_split:right
-keybind = alt+left=goto_split:left
-keybind = alt+down=goto_split:down
-keybind = alt+up=goto_split:up
-keybind = alt+right=goto_split:right
+# --- Pane navigation (disabled for tmux pairing) ---
+# Ghostty captures alt+hjkl/arrows BEFORE tmux sees them, which blocks tmux's
+# own pane navigation. Uncomment these only when running ghostty standalone.
+# keybind = alt+h=goto_split:left
+# keybind = alt+j=goto_split:down
+# keybind = alt+k=goto_split:up
+# keybind = alt+l=goto_split:right
+# keybind = alt+left=goto_split:left
+# keybind = alt+down=goto_split:down
+# keybind = alt+up=goto_split:up
+# keybind = alt+right=goto_split:right
 
 # === Ghostty-native leader bindings (disabled by default for tmux pairing) ===
 # If you uncomment these, tmux will not receive ctrl+p — pick one.

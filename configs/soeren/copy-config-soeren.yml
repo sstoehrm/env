@@ -29,14 +29,10 @@
       - source: "ghostty/config"
         target: "{{ user_home }}/.config/ghostty/config"
         create_backup: yes
-      # Tmux configuration
+      # Tmux configuration (XDG path; tmux 3.1+ searches here)
       - source: "tmux/tmux.conf"
-        target: "{{ user_home }}/.tmux.conf"
+        target: "{{ user_home }}/.config/tmux/tmux.conf"
         create_backup: yes
-      - source: "tmux/startup.sh"
-        target: "{{ user_home }}/.config/tmux/startup.sh"
-        create_backup: yes
-        mode: "0755"
 
   tasks:
     - name: Gather facts
