@@ -24,5 +24,7 @@
   "install_game_dev": false,
   "install_chromium": true,
   "install_speedcrunch": false,
+  "install_gcolor3": false,
+  "install_rust": false,
   "install_doom_emacs": false
 }

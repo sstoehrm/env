@@ -1,0 +1,21 @@
+---
+- name: Gcolor3 Color Picker
+  hosts: localhost
+
+  tasks:
+    - name: Install Gcolor3 (Ubuntu/Debian)
+      become: yes
+      become_method: sudo
+      apt:
+        name: gcolor3
+        state: present
+        update_cache: yes
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install Gcolor3 (Fedora)
+      become: yes
+      become_method: sudo
+      dnf:
+        name: gcolor3
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"

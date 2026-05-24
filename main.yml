@@ -61,6 +61,8 @@
         should_install_game_dev: "{{ prefs.install_game_dev | bool }}"
         should_install_chromium: "{{ prefs.install_chromium | bool }}"
         should_install_speedcrunch: "{{ prefs.install_speedcrunch | bool }}"
+        should_install_gcolor3: "{{ prefs.install_gcolor3 | bool }}"
+        should_install_rust: "{{ prefs.install_rust | bool }}"
         should_install_doom_emacs: "{{ prefs.install_doom_emacs | bool }}"
         cacheable: true
 
@@ -91,6 +93,8 @@
           - "  Game dev: {{ should_install_game_dev }}"
           - "  Chromium: {{ should_install_chromium }}"
           - "  SpeedCrunch: {{ should_install_speedcrunch }}"
+          - "  Gcolor3: {{ should_install_gcolor3 }}"
+          - "  Rust: {{ should_install_rust }}"
           - "  Doom Emacs: {{ should_install_doom_emacs }}"
 
 # Base system packages
@@ -226,6 +230,10 @@
   tags: [base, ghostty]
   when: hostvars['localhost']['should_install_ghostty'] | default(false)
 
+- import_playbook: playbooks/development/rust.yml
+  tags: [base, rust]
+  when: hostvars['localhost']['should_install_rust'] | default(false)
+
 - import_playbook: playbooks/development/starship.yml
   tags: [base, starship]
   when: hostvars['localhost']['should_install_starship'] | default(false)
@@ -264,6 +272,10 @@
 - import_playbook: playbooks/applications/speedcrunch.yml
   tags: [base, speedcrunch]
   when: hostvars['localhost']['should_install_speedcrunch'] | default(false)
+
+- import_playbook: playbooks/applications/gcolor3.yml
+  tags: [base, gcolor3]
+  when: hostvars['localhost']['should_install_gcolor3'] | default(false)
 
 # Doom Emacs
 - import_playbook: playbooks/development/doom-emacs.yml

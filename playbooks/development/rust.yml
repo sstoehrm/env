@@ -1,0 +1,16 @@
+---
+- name: Rust
+  hosts: localhost
+
+  tasks:
+    - name: Check if Rust is already installed
+      command: which rustup
+      register: rustup_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Rust
+      shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      args:
+        executable: /bin/bash
+      when: rustup_check.rc != 0
