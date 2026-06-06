@@ -42,6 +42,7 @@
       get_url:
         url: "https://github.com/odin-lang/Odin/releases/download/{{ odin_release.json.tag_name }}/odin-linux-amd64-{{ odin_release.json.tag_name }}.tar.gz"
         dest: /tmp/odin-latest.tar.gz
+        force: yes
       when: odin_needs_install
 
     - name: Remove old Odin installation
