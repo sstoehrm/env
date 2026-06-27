@@ -12,6 +12,7 @@
         user_home: "{{ ansible_facts['env']['HOME'] }}"
         local_bin: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
         applications_dir: "{{ ansible_facts['env']['HOME'] }}/.local/share/applications"
+        blockbench_appimage: "{{ ansible_facts['env']['HOME'] }}/.local/bin/blockbench.AppImage"
     - name: Ensure ~/.local/bin directory exists
       file:
         path: "{{ local_bin }}"
@@ -26,23 +27,53 @@
 
     - name: Check if Blockbench is already installed
       stat:
-        path: "{{ local_bin }}/blockbench"
+        path: "{{ blockbench_appimage }}"
       register: blockbench_check
       changed_when: false
+
+    - name: Read installed Blockbench version
+      command: cat "{{ local_bin }}/.blockbench-version"
+      register: blockbench_installed_version
+      changed_when: false
+      failed_when: false
 
     - name: Get latest Blockbench release version
       uri:
         url: https://api.github.com/repos/JannisX11/blockbench/releases/latest
         return_content: yes
       register: blockbench_release
-      when: not blockbench_check.stat.exists
+
+    - name: Determine whether Blockbench needs installing
+      set_fact:
+        blockbench_needs_install: "{{ not blockbench_check.stat.exists or blockbench_installed_version.rc != 0 or blockbench_release.json.tag_name != (blockbench_installed_version.stdout | trim) }}"
 
     - name: Download latest Blockbench AppImage
       get_url:
         url: "https://github.com/JannisX11/blockbench/releases/download/{{ blockbench_release.json.tag_name }}/Blockbench_{{ blockbench_release.json.tag_name | regex_replace('^v', '') }}.AppImage"
+        dest: "{{ blockbench_appimage }}"
+        mode: '0755'
+        force: yes
+      when: blockbench_needs_install
+
+    - name: Record installed Blockbench version
+      copy:
+        dest: "{{ local_bin }}/.blockbench-version"
+        content: "{{ blockbench_release.json.tag_name }}"
+        mode: '0644'
+      when: blockbench_needs_install
+
+    # AppArmor restricts unprivileged user namespaces on this kernel, so
+    # Electron's namespace sandbox is unavailable and it falls back to the
+    # bundled SUID chrome-sandbox, which isn't setuid root inside the
+    # /tmp-mounted AppImage and aborts. Launch with --no-sandbox via a wrapper
+    # so both the desktop entry and terminal `blockbench` start correctly.
+    - name: Install Blockbench launcher wrapper
+      copy:
         dest: "{{ local_bin }}/blockbench"
         mode: '0755'
-      when: not blockbench_check.stat.exists
+        content: |
+          #!/bin/sh
+          exec "{{ blockbench_appimage }}" --no-sandbox "$@"
 
     - name: Create desktop entry for Blockbench
       copy:
