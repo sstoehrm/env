@@ -33,6 +33,10 @@
       - source: "tmux/tmux.conf"
         target: "{{ user_home }}/.config/tmux/tmux.conf"
         create_backup: yes
+      # Herdr configuration (mirrors the tmux config)
+      - source: "herdr/config.toml"
+        target: "{{ user_home }}/.config/herdr/config.toml"
+        create_backup: yes
 
   tasks:
     - name: Gather facts

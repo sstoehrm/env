@@ -1,0 +1,131 @@
+# ~/.config/herdr/config.toml
+# Translated from configs/soeren/tmux/tmux.conf so herdr feels like the tmux
+# setup: same ctrl+p leader, same split/zoom/tab keys, alt+hjkl pane focus,
+# carbonfox colors, status/tab bar on top.
+#
+# tmux features with no herdr equivalent (and therefore not mirrored):
+#   - tmux-resurrect prefix+S / prefix+O: herdr persists sessions itself
+#     (`herdr` re-attaches; see [session] below).
+#   - prefix+ctrl+p send-prefix: herdr has no nested-prefix passthrough.
+#   - tmux's default prefix+d detach was kept implicitly; it is explicit here
+#     because tmux's prefix+q (kill-pane) collides with herdr's default detach.
+#
+# Validate after editing: herdr config check
+# Apply to a running server: herdr server reload-config (or prefix+ctrl+r)
+
+# --- Theme (carbonfox) ---
+# Palette (same as ghostty/tmux configs)
+#   bg     #161616   black  #0c0c0c   gray   #282828   bright black #484848
+#   fg     #f2f4f8   red    #ee5396   green  #25be6a
+#   yellow #08bdba   blue   #78a9ff   pink   #be95ff
+#   cyan   #33b1ff   orange #ff7eb6   white  #dfdfe0
+[theme]
+# "terminal" inherits the host palette (ghostty already ships carbonfox);
+# the overrides below pin the tokens herdr uses for its own chrome.
+name = "terminal"
+
+[theme.custom]
+accent = "#33b1ff"        # active tab bg / active pane border (tmux: cyan)
+panel_bg = "#161616"      # status bar bg
+sidebar_bg = "#161616"
+active_row_bg = "#282828"
+selection_bg = "#282828"
+surface0 = "#282828"      # inactive pane borders
+surface1 = "#484848"
+surface_dim = "#0c0c0c"
+overlay0 = "#484848"
+text = "#f2f4f8"
+subtext0 = "#dfdfe0"
+red = "#ee5396"
+green = "#25be6a"
+yellow = "#08bdba"
+blue = "#78a9ff"
+mauve = "#be95ff"
+teal = "#33b1ff"
+peach = "#ff7eb6"
+
+# --- Terminal ---
+[terminal]
+# tmux: default-command "${SHELL}"; new panes/tabs open in the current path
+# (tmux: -c "#{pane_current_path}").
+default_shell = ""
+new_cwd = "follow"
+
+# --- Keys ---
+[keys]
+# Leader: Ctrl+P (matches tmux/wezterm/kitty)
+prefix = "ctrl+p"
+
+# Splits (tmux: prefix+h = split-window -v (stacked), prefix+v = split-window -h (side by side))
+split_horizontal = "prefix+h"
+split_vertical = "prefix+v"
+
+# Pane zoom + close (tmux: prefix+f resize-pane -Z, prefix+q kill-pane)
+zoom = "prefix+f"
+close_pane = "prefix+q"
+detach = "prefix+d"        # moved off prefix+q; tmux's own default detach key
+
+# Tabs (tmux "windows"): prefix+C new, prefix+Q kill, prefix+R rename, prefix+1..9 select
+new_tab = "prefix+shift+c"
+close_tab = "prefix+shift+q"
+rename_tab = "prefix+shift+r"
+switch_tab = "prefix+1..9"
+
+# Prev/next tab (tmux: prefix+H / prefix+Left, prefix+L / prefix+Right)
+previous_tab = ["prefix+shift+h", "prefix+left"]
+next_tab = ["prefix+shift+l", "prefix+right"]
+# herdr binds prefix+shift+h/l to pane swapping by default; freed for the tab keys above.
+swap_pane_left = ""
+swap_pane_right = ""
+
+# Pane navigation without prefix (tmux: bind -n M-h/j/k/l and M-arrows)
+focus_pane_left = ["alt+h", "alt+left"]
+focus_pane_down = ["alt+j", "alt+down"]
+focus_pane_up = ["alt+k", "alt+up"]
+focus_pane_right = ["alt+l", "alt+right"]
+
+# Resize mode (tmux: prefix+r switch-client -T resize_mode; hjkl inside, Esc leaves)
+resize_mode = "prefix+r"
+
+# Copy mode (tmux: prefix+y copy-mode; vi keys, y copies)
+copy_mode = "prefix+y"
+
+# Reload config (tmux: prefix+ctrl+r source-file)
+reload_config = "prefix+ctrl+r"
+
+# --- UI ---
+[ui]
+# tmux: mouse on, set-clipboard on
+mouse_capture = true
+copy_on_select = true
+
+# tmux: status-position top; status-right shows clock and host
+tab_bar_position = "top"
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "datetime", format = "%H:%M" },
+]
+
+# tmux: pane-border-style / pane-active-border-style
+pane_borders = true
+pane_outer_borders = false
+pane_gaps = false
+
+# tmux window names are auto-generated; herdr prompts by default.
+prompt_new_tab_name = false
+
+# --- Session save/restore (replaces tmux-resurrect) ---
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+# tmux: @resurrect-capture-pane-contents 'on'. Saves pane screen contents to
+# disk across server restarts; see https://herdr.dev/docs/session-state/.
+pane_history = true
+
+# --- Scrollback ---
+[advanced]
+# tmux: history-limit 100000 (lines). herdr caps by bytes; 10 MB is roughly
+# the same order of magnitude for typical shell output.
+scrollback_limit_bytes = 10000000

@@ -1,0 +1,53 @@
+---
+# Herdr — terminal workspace manager that takes tmux's place as the multiplexer.
+# Installs the binary via the official installer (to ~/.local/bin) and swaps the
+# .bashrc autostart from tmux to herdr. Its config lives in
+# configs/soeren/herdr/config.toml (deployed by copy-config-soeren.yml).
+- name: Herdr
+  hosts: localhost
+
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Set user variables
+      set_fact:
+        user: "{{ ansible_facts['user_id'] }}"
+        user_home: "{{ ansible_facts['env']['HOME'] }}"
+
+    - name: Check if herdr is already installed
+      stat:
+        path: "{{ user_home }}/.local/bin/herdr"
+      register: herdr_check
+      changed_when: false
+
+    # Installer honours HERDR_INSTALL_DIR; default is ~/.local/bin, no sudo needed.
+    # Later updates: `herdr update`.
+    - name: Install herdr
+      shell: curl -fsSL https://herdr.dev/install.sh | sh
+      args:
+        executable: /bin/bash
+      when: not herdr_check.stat.exists
+
+    # herdr replaces tmux as the multiplexer; both autostarting would nest them.
+    - name: Remove tmux autostart from .bashrc
+      blockinfile:
+        path: "{{ user_home }}/.bashrc"
+        marker: "# {mark} TMUX AUTOSTART"
+        state: absent
+        create: yes
+        mode: '0644'
+
+    - name: Add herdr autostart to .bashrc
+      blockinfile:
+        path: "{{ user_home }}/.bashrc"
+        marker: "# {mark} HERDR AUTOSTART"
+        block: |
+          # Attach to (or start) the persistent herdr session for interactive shells.
+          # HERDR_ENV is set inside herdr-managed panes; TMUX guard avoids nesting in tmux.
+          case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
+          if command -v herdr &> /dev/null && [ -z "$HERDR_ENV" ] && [ -z "$TMUX" ]; then
+              herdr
+          fi
+        create: yes
+        mode: '0644'
