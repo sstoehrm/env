@@ -30,12 +30,11 @@ STEPS=(
   "clojure:install_clojure"
   "neovim:install_neovim"
   "ast-grep:install_ast_grep"
-  "herdr:install_herdr"
   "game-dev:install_game_dev"
   "gcolor3:install_gcolor3"
   "signal:install_signal"
   "configs:copy_soeren_configs"
-  "lsp:copy_soeren_configs"
+  "lsp:lsp"
 )
 
 step_name() { printf '%s' "${1%%:*}"; }
@@ -55,10 +54,27 @@ require_prefs() {
 }
 
 # pref <key> — read a boolean out of preferences.json; absent means off.
+#
 # Uses has() rather than //, because jq's // treats an explicit false as absent
 # and would silently flip a disabled key back on.
+#
+# A key whose value is an object is a group (see "lsp"): it counts as enabled
+# when any member is true, so the step runs and then gates its own parts.
 pref() {
-  jq -r --arg k "$1" 'if has($k) then (.[$k] | tostring) else "false" end' "$PREFS"
+  jq -r --arg k "$1" '
+    if (has($k) | not) then "false"
+    elif (.[$k] | type) == "object" then ((.[$k] | any(.[]; . == true)) | tostring)
+    else (.[$k] | tostring)
+    end' "$PREFS"
+}
+
+# pref_member <group> <member> — read one boolean out of a group object.
+pref_member() {
+  jq -r --arg g "$1" --arg m "$2" '
+    if (has($g) and ((.[$g] | type) == "object") and (.[$g] | has($m)))
+    then (.[$g][$m] | tostring)
+    else "false"
+    end' "$PREFS"
 }
 
 # pref_str <key> — read a string out of preferences.json.

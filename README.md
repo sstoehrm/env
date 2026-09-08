@@ -43,16 +43,37 @@ and the path is printed at the end of a run that touched anything.
 | `clojure` | `install_clojure` | rlwrap · Clojure CLI · babashka | pacman · mise · upstream installer |
 | `neovim` | `install_neovim` | fish, tectonic · Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo) · mermaid-cli | pacman · npm |
 | `ast-grep` | `install_ast_grep` | ast-grep | pacman |
-| `herdr` | `install_herdr` | herdr autostart in `.bashrc` | managed block |
 | `game-dev` | `install_game_dev` | Odin · Blockbench | upstream releases → `~/.local` |
 | `gcolor3` | `install_gcolor3` | gcolor3 | pacman |
 | `signal` | `install_signal` | signal-desktop | pacman |
 | `configs` | `copy_soeren_configs` | herdr config · Neovim config | file copy |
-| `lsp` | `copy_soeren_configs` | LSP servers and formatters in `~/lsp/bin` | npm · pacman · upstream releases |
+| `lsp` | `lsp` (group) | the LSP servers and formatters you select, into `~/lsp/bin` | npm · pacman · upstream releases |
 
 Steps run in the order listed. `nodejs` deliberately comes before `lsp`, which
 needs mise's npm — the Ansible version had these the other way round, so on a
 fresh machine its LSP step would have run before Node existed.
+
+## Selecting LSP servers
+
+Every server and formatter is individually optional. `"lsp"` in
+`preferences.json` is a group: the step runs when any member is true, and each
+member gates its own install.
+
+```json
+"lsp": {
+  "fnlfmt": true,
+  "zls": true,
+  "clojure-lsp": false
+}
+```
+
+The default is everything off, because the Neovim config already installs most
+of the same tools through `mason-tool-installer`. Turn one on here when you want
+it on `PATH` or reachable from another editor. `fnlfmt` — which `conform.lua`
+invokes as a bare command — plus `ols`/`odinfmt` and `zls` are the ones Mason
+does not cover.
+
+With nothing selected the step is a no-op: no `~/lsp/bin`, no `PATH` entry.
 
 ## Dropped — Omarchy already provides it
 
@@ -64,7 +85,7 @@ fresh machine its LSP step would have run before Node existed.
 | `lazygit`, `fd`, `starship`, `chromium` | the same packages |
 | `rocm` | not applicable — that playbook hard-fails off Ubuntu 24.04 |
 | `kitty`, `ghostty`, `wezterm` | `omarchy install terminal <alacritty\|foot\|ghostty\|kitty>` |
-| `tmux`, `zellij` | `herdr`, which this branch autostarts instead |
+| `tmux`, `zellij` | `herdr`, which Omarchy packages and gives an `h` alias |
 | `vscode` (+ plugins) | `omarchy install editor vscode` |
 | `opencode` | `opencode` in Omarchy's pacman repo |
 | `doom-emacs` (+ deps) | `omarchy install editor emacs` |
@@ -137,8 +158,12 @@ a host without omarchy-nvim.
   provides.
 - **First nvim launch.** `lazyvim.json` enables 21 extras against omarchy-nvim's
   one, so the first `nvim` after deploying does a large plugin install.
-- **`.bashrc` blocks.** The herdr autostart, `ODIN_HOME` and the `~/lsp/bin`
-  PATH entry live in `# BEGIN … / # END …` blocks — the same marker format
-  Ansible's `blockinfile` used, so blocks left by the Ansible version are
-  replaced rather than duplicated, and the bare `export` lines it appended are
-  removed.
+- **No multiplexer autostart.** Nothing here claims your interactive shells.
+  herdr is packaged by Omarchy and starts with its `h` alias; the `configs` step
+  deploys `~/.config/herdr/config.toml` for when you do. If you are migrating
+  from `main`, it left a `# BEGIN TMUX AUTOSTART` block in your `.bashrc` — this
+  branch does not touch it, so remove it by hand if you don't want it.
+- **`.bashrc` blocks.** `ODIN_HOME` and the `~/lsp/bin` PATH entry live in
+  `# BEGIN … / # END …` blocks — the same marker format Ansible's `blockinfile`
+  used, so blocks left by the Ansible version are replaced rather than
+  duplicated, and the bare `export` lines it appended are removed.

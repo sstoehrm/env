@@ -9,8 +9,28 @@
   "install_rust": false,
   "install_neovim": true,
   "install_ast_grep": true,
-  "install_herdr": true,
   "install_clojure": false,
   "install_game_dev": false,
-  "install_gcolor3": false
+  "install_gcolor3": false,
+
+  "_lsp": "Servers and formatters in ~/lsp/bin. The Neovim config installs most of these itself through Mason, so turn one on here only if you want it on PATH or in another editor. The step runs when any entry is true.",
+  "lsp": {
+    "typescript-language-server": false,
+    "pyright": false,
+    "bash-language-server": false,
+    "svelte-language-server": false,
+    "yaml-language-server": false,
+    "json-language-server": false,
+    "prettier": false,
+    "lua-language-server": false,
+    "stylua": false,
+    "clojure-lsp": false,
+    "kotlin-lsp": false,
+    "ols": false,
+    "zls": false,
+    "jdtls": false,
+    "cljfmt": false,
+    "ktlint": false,
+    "fnlfmt": false
+  }
 }
