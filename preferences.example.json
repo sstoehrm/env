@@ -12,7 +12,12 @@
   "install_clojure": false,
   "install_game_dev": false,
   "install_gcolor3": false,
-
+  "install_simpleviz": true,
+  "_skills": "Claude Code plugins from GitHub marketplaces. Installed for the user scope; restart Claude Code afterwards. The step runs when any entry is true.",
+  "skills": {
+    "blend": true,
+    "simpleviz": true
+  },
   "_lsp": "Servers and formatters in ~/lsp/bin. The Neovim config installs most of these itself through Mason, so turn one on here only if you want it on PATH or in another editor. The step runs when any entry is true.",
   "lsp": {
     "typescript-language-server": false,

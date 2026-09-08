@@ -191,3 +191,28 @@ link_bin() {
   mkdir -p "$bindir"
   ln -snf "$target" "$bindir/$name"
 }
+
+# --- babashka -------------------------------------------------------------
+
+# Needed by the Clojure step and by simpleviz, which refuses to run without it.
+# Packaged nowhere convenient on Arch; the upstream installer drops a single
+# binary into ~/.local/bin, which Omarchy already has on PATH.
+ensure_babashka() {
+  if have bb; then
+    skip "babashka $(bb --version | grep -oE '[0-9.]+' | head -n1) already installed"
+    return 0
+  fi
+  info "installing babashka"
+  mkdir -p "$HOME/.local/bin"
+  local tmp
+  tmp="$(mktemp -d)"
+  if curl -fsSL -o "$tmp/install" https://raw.githubusercontent.com/babashka/babashka/master/install; then
+    chmod +x "$tmp/install"
+    "$tmp/install" --dir "$HOME/.local/bin" || { rm -rf "$tmp"; die "babashka install failed"; }
+  else
+    rm -rf "$tmp"
+    die "could not download the babashka installer"
+  fi
+  rm -rf "$tmp"
+  ok "babashka installed"
+}

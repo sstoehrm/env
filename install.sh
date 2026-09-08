@@ -33,6 +33,8 @@ STEPS=(
   "game-dev:install_game_dev"
   "gcolor3:install_gcolor3"
   "signal:install_signal"
+  "simpleviz:install_simpleviz"
+  "skills:skills"
   "configs:copy_soeren_configs"
   "lsp:lsp"
 )

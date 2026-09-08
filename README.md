@@ -46,12 +46,42 @@ and the path is printed at the end of a run that touched anything.
 | `game-dev` | `install_game_dev` | Odin · Blockbench | upstream releases → `~/.local` |
 | `gcolor3` | `install_gcolor3` | gcolor3 | pacman |
 | `signal` | `install_signal` | signal-desktop | pacman |
+| `simpleviz` | `install_simpleviz` | simpleviz (+ babashka) | upstream installer |
+| `skills` | `skills` (group) | the Claude Code plugins you select | `claude plugin` |
 | `configs` | `copy_soeren_configs` | herdr config · Neovim config | file copy |
 | `lsp` | `lsp` (group) | the LSP servers and formatters you select, into `~/lsp/bin` | npm · pacman · upstream releases |
 
 Steps run in the order listed. `nodejs` deliberately comes before `lsp`, which
 needs mise's npm — the Ansible version had these the other way round, so on a
 fresh machine its LSP step would have run before Node existed.
+
+## Claude Code plugins
+
+`"skills"` in `preferences.json` is a group, same shape as `"lsp"`: the step
+runs when any member is true.
+
+```json
+"skills": {
+  "blend": true,
+  "simpleviz": true
+}
+```
+
+Both entries are plugin marketplaces on GitHub, each shipping one plugin of the
+same name. The step runs `claude plugin marketplace add <owner/repo>` and then
+`claude plugin install <plugin>@<marketplace> --scope user --yes` — `--yes`
+because a non-interactive run cannot answer the confirmation prompt. Restart
+Claude Code afterwards; the step says so only when it actually installed
+something.
+
+To add another, extend `SKILL_PLUGINS` in `install/skills.sh` and add the key to
+the group. The marketplace name is taken from the repo name, and the plugin name
+is given separately rather than assumed to match.
+
+`simpleviz` is also a real tool, installed by its own step from the upstream
+release into `~/.simpleviz` with a launcher at `~/.local/bin/simpleviz`. It needs
+babashka >= 1.3.0, so that step installs babashka itself rather than relying on
+the `clojure` step being enabled.
 
 ## Selecting LSP servers
 
