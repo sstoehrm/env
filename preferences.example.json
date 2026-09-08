@@ -8,7 +8,6 @@
   "install_nodejs": true,
   "install_rust": false,
   "install_neovim": true,
-  "install_docker": true,
   "install_ast_grep": true,
   "install_herdr": true,
   "install_clojure": false,

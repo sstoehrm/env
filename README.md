@@ -1,124 +1,144 @@
 # env — Omarchy branch
 
-This branch is the `main` playbook set reduced to **only what Omarchy does not
-already ship**, with every remaining install rewritten to Arch/Omarchy
-mechanisms (pacman, `mise`, and Omarchy's own `omarchy-*` helpers). Nothing
-here needs the AUR.
+Development environment setup for **Omarchy**, reduced to only what Omarchy
+does not already ship and written in bash, in the same idiom Omarchy itself
+uses (`install/*.sh` steps, `omarchy-pkg-add` for packages).
 
-`main` targets Debian/Ubuntu and Fedora via `apt`/`dnf`/`snap`/`flatpak`. None
-of that applies here. `main.yml` refuses to run if `/etc/os-release` does not
-report `ID=omarchy`.
+`main` is the Ansible version that targets Debian/Ubuntu and Fedora via
+`apt`/`dnf`/`snap`/`flatpak`. None of that applies here, and once the
+distro-abstraction layer was gone, Ansible was wrapping `pacman -S` in five
+lines of YAML for no return. This branch drops it.
 
 Verified against **Omarchy 4.0.2-1**.
 
 ## Usage
 
 ```bash
-./install-ansible.sh                  # pacman -S ansible (bundles community.general)
 cp preferences.example.json preferences.json
 $EDITOR preferences.json
-ansible-playbook main.yml --ask-become-pass
+
+./install.sh                 # run every step enabled in preferences.json
+./install.sh nodejs clojure  # run just these steps, ignoring preferences
+./install.sh --list          # show every step and whether it is enabled
 ```
 
-Tags still work: `ansible-playbook main.yml --ask-become-pass --tags configs`.
-There is also a `mise` tag covering every language toolchain.
+No bootstrap step: bash, `jq`, `git` and `curl` all ship with Omarchy.
 
-## What it installs
+**Nothing here calls `sudo` directly.** Package installs go through
+`omarchy-pkg-add`, so whatever sudo implementation Omarchy supports is the one
+this inherits — which is also why a switch to `sudo-rs` is Omarchy's problem
+rather than this repo's. Everything else writes under `$HOME`.
 
-| Flag | Installs | How |
-| --- | --- | --- |
-| `install_signal` | signal-desktop | pacman |
-| `copy_soeren_configs` | herdr config, the Neovim config, and the LSP servers/formatters in `~/lsp/bin` | file copy · upstream releases |
-| `configure_git` | global `user.name` / `user.email` | git_config |
-| `install_jvm` | Java temurin-21, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
-| `install_nodejs` | Node 24 | mise |
-| `install_rust` | rustup + stable toolchain | pacman |
-| `install_neovim` | fish, tectonic · mermaid-cli · Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo) | pacman · npm · pacman |
-| `install_docker` | docker group + daemon enabled · Portainer | systemd · `docker run` |
-| `install_ast_grep` | ast-grep | pacman |
-| `install_herdr` | herdr autostart in `.bashrc` (herdr itself is packaged by Omarchy) | blockinfile |
-| `install_clojure` | rlwrap · babashka · Clojure CLI | pacman · upstream installer · mise |
-| `install_game_dev` | Odin · Blockbench | GitHub releases → `~/.local` |
-| `install_gcolor3` | gcolor3 | pacman |
+Replaced files are backed up under `~/.local/state/env-install/backup-<timestamp>/`,
+and the path is printed at the end of a run that touched anything.
+
+## Steps
+
+| Step | Preference key | Installs | How |
+| --- | --- | --- | --- |
+| `git-config` | `configure_git` | global `user.name` / `user.email` | `git config` |
+| `jvm` | `install_jvm` | Java temurin-21, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
+| `nodejs` | `install_nodejs` | Node 24 | mise |
+| `rust` | `install_rust` | rustup + stable toolchain | pacman |
+| `clojure` | `install_clojure` | rlwrap · Clojure CLI · babashka | pacman · mise · upstream installer |
+| `neovim` | `install_neovim` | fish, tectonic · Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo) · mermaid-cli | pacman · npm |
+| `ast-grep` | `install_ast_grep` | ast-grep | pacman |
+| `herdr` | `install_herdr` | herdr autostart in `.bashrc` | managed block |
+| `game-dev` | `install_game_dev` | Odin · Blockbench | upstream releases → `~/.local` |
+| `gcolor3` | `install_gcolor3` | gcolor3 | pacman |
+| `signal` | `install_signal` | signal-desktop | pacman |
+| `configs` | `copy_soeren_configs` | herdr config · Neovim config | file copy |
+| `lsp` | `copy_soeren_configs` | LSP servers and formatters in `~/lsp/bin` | npm · pacman · upstream releases |
+
+Steps run in the order listed. `nodejs` deliberately comes before `lsp`, which
+needs mise's npm — the Ansible version had these the other way round, so on a
+fresh machine its LSP step would have run before Node existed.
 
 ## Dropped — Omarchy already provides it
 
-| Removed from `main` | Provided by Omarchy as |
+| On `main` | Provided by Omarchy as |
 | --- | --- |
-| `base/packages.yml` | `curl`, `git` |
-| `development/nvm.yml`, `development/sdkman.yml` | `mise-bin`, activated in `/usr/share/omarchy/default/bash/init` |
-| `development/neovim.yml`, `development/lazyvim.yml` | `omarchy-nvim` (Neovim + pre-built LazyVim with cached plugins) |
-| `development/lazygit.yml` | `lazygit` |
-| `development/fd.yml` | `fd` |
-| `development/starship.yml` | `starship` + a themed `~/.config/starship.toml` |
-| `development/rocm.yml` | not applicable — hard-fails off Ubuntu 24.04, and ROCm on Arch is an unrelated path |
-| `applications/chromium.yml` | `chromium` |
-| `development/kitty.yml`, `development/ghostty.yml`, `development/wezterm.yml` | `omarchy install terminal <alacritty\|foot\|ghostty\|kitty>` |
-| `development/tmux.yml`, `development/zellij.yml` | `herdr`, which this branch autostarts instead |
-| `development/vscode.yml` (+ plugins) | `omarchy install editor vscode` |
-| `development/opencode.yml` | `opencode` in Omarchy's pacman repo |
-| `development/doom-emacs.yml` (+ deps) | `omarchy install editor emacs` |
-| `applications/speedcrunch.yml` | `omacalc` |
+| base packages | `curl`, `git` |
+| `nvm`, `sdkman` | `mise-bin`, activated in `/usr/share/omarchy/default/bash/init` |
+| `neovim`, `lazyvim` | `omarchy-nvim` (Neovim + pre-built LazyVim with cached plugins) |
+| `lazygit`, `fd`, `starship`, `chromium` | the same packages |
+| `rocm` | not applicable — that playbook hard-fails off Ubuntu 24.04 |
+| `kitty`, `ghostty`, `wezterm` | `omarchy install terminal <alacritty\|foot\|ghostty\|kitty>` |
+| `tmux`, `zellij` | `herdr`, which this branch autostarts instead |
+| `vscode` (+ plugins) | `omarchy install editor vscode` |
+| `opencode` | `opencode` in Omarchy's pacman repo |
+| `doom-emacs` (+ deps) | `omarchy install editor emacs` |
+| `speedcrunch` | `omacalc` |
+| `docker`, `portainer` | see below |
 
-Also dropped: the `configs/soeren/doom/doom-tool-deps.yml` import. That file does
-not exist anywhere in the repo, so on `main` it breaks any run with both
-`copy_soeren_configs` and `install_doom_emacs` enabled.
+Also dropped: the `configs/soeren/doom/doom-tool-deps.yml` import, which points
+at a file that does not exist anywhere in the repo — on `main` it breaks any run
+with both `copy_soeren_configs` and `install_doom_emacs` enabled.
 
-`gcolor3` and `portainer` stayed: Omarchy covers the same needs with
-`hyprpicker` and `lazydocker`, but those two binaries are genuinely not
-installed.
+`gcolor3` stayed: Omarchy covers the need with `hyprpicker`, but the binary is
+genuinely not installed.
 
-The configs for the removed tools (`configs/soeren/vscode/`, `wezterm.lua`,
-`kitty/`, `ghostty/`, `tmux/`) are kept in the repo as reference, but nothing
-deploys them any more.
+Configs for the removed tools (`configs/soeren/vscode/`, `wezterm.lua`,
+`kitty/`, `ghostty/`, `tmux/`) are kept as reference; nothing deploys them.
 
-## Reduced — Omarchy provides part of it
+### Why docker and portainer are gone
 
-| Playbook | What is left to do |
-| --- | --- |
-| `development/docker.yml` | `docker`, `docker-buildx`, `docker-compose` are installed but the daemon is disabled and the user is not in the `docker` group. Only that activation remains. |
-| `development/herdr.yml` | herdr is packaged and its `h` alias and `hdl` functions are already in Omarchy's bash defaults; only the autostart block is added (and any tmux/zellij autostart removed). |
-| `development/nerdfonts.yml` | `ttf-jetbrains-mono-nerd-basic` ships; the other families come from `[extra]` instead of GitHub zips. |
-| `development/neovim-deps.yml` | `base-devel`, `ripgrep`, `fzf`, `luarocks`, `imagemagick` and `wl-clipboard` are present. Left: `fish`, `tectonic`, `mermaid-cli`. |
-| `configs/soeren/lsp/install-lsp-servers.yml` | `lua-language-server` and `stylua` come from `[extra]` and are symlinked into `~/lsp/bin`, so that PATH contract is unchanged. The rest still installs from upstream releases. |
+Omarchy deliberately does **not** add the user to the `docker` group. From
+`/usr/share/omarchy/install/config/docker.sh`:
+
+> The Docker daemon runs as root and its socket is root-owned, so membership in
+> the docker group is equivalent to passwordless root: any process in it can
+> `docker run -v /:/host` and rewrite the host as root.
+
+It enables `docker.socket` and leaves `docker.service` disabled, routing the CLI
+through a polkit or sudo prompt. The `main` playbook did `usermod -aG docker`
+plus `systemctl enable --now docker`, silently reversing that. If you want
+sudoless Docker, take Omarchy's opt-in, which warns first and records the reboot
+that group membership needs:
+
+```bash
+omarchy-setup-security-sudoless-docker   # Setup > Security > Sudoless Docker
+```
+
+Portainer went with it: it assumed a user-reachable socket.
 
 ## The Neovim config
 
-`omarchy-nvim` owns `~/.config/nvim`. `copy-config-soeren.yml` copies this
-repo's config **over** it rather than replacing the directory, so files
-omarchy-nvim ships that this config does not name — `remote_clipboard.lua`,
-`all-themes.lua`, `omarchy-theme-hotreload.lua` — stay in place and keep
-working.
+`omarchy-nvim` owns `~/.config/nvim`. The `configs` step copies this repo's
+config **over** it rather than replacing the directory, so files omarchy-nvim
+ships that our config does not name — `remote_clipboard.lua`, `all-themes.lua`,
+`omarchy-theme-hotreload.lua` — stay in place and keep working.
 
-Two things needed care:
+Two conflicts needed handling:
 
 **`theme.lua`.** Omarchy ships `~/.config/nvim/lua/plugins/theme.lua` as a
 symlink to `~/.local/state/omarchy/current/theme/neovim.lua`, regenerated by
 `omarchy-theme-set` on every theme switch, pinning `colorscheme = "aether"`.
-lazy.nvim merges specs for the same plugin in filename order, so this repo's
-old `colorscheme.lua` would always have lost to `theme.lua` and its `carbonfox`
-pin would have silently never applied. The file is therefore named `theme.lua`,
-and the playbook deletes Omarchy's symlink before copying so it lands as a real
-file. Omarchy keeps writing `neovim.lua` under `~/.local/state`; nothing reads
-it any more.
+lazy.nvim merges specs for the same plugin in filename order, so this repo's old
+`colorscheme.lua` always lost and its `carbonfox` pin silently never applied.
+The file is now named `theme.lua`, and the step deletes Omarchy's symlink before
+copying so it lands as a real file.
 
-Consequence: **`omarchy theme set` no longer retints Neovim.** Also,
-`omarchy-nvim-refresh` and `omarchy-reinstall-configs` recreate the symlink with
-`ln -snf`, so re-run `--tags configs` after either of those.
+Consequence: **`omarchy theme set` no longer retints Neovim.** And
+`omarchy-nvim-refresh` / `omarchy-reinstall-configs` recreate the symlink with
+`ln -snf`, so re-run `./install.sh configs` after either.
 
 **`options.lua`.** Omarchy's version calls
 `require("config.remote_clipboard").setup()`, which is what makes yank leave the
 machine over SSH and inside herdr panes. This repo's `options.lua` replaces that
-file, so the call was added here (wrapped in `pcall`, so the config still loads
-on a host without omarchy-nvim).
+file, so the call was added here, wrapped in `pcall` so the config still loads on
+a host without omarchy-nvim.
 
-## Gotchas
+## Notes
 
 - **Mason overlap.** The Neovim config installs most of `~/lsp/`'s servers again
-  through `mason-tool-installer` (bash-language-server, clojure-lsp, jdtls,
-  kotlin-lsp, lua-language-server, prettier, stylua, svelte-language-server,
-  ktlint). `install-lsp-servers.yml` is still worth running for `fnlfmt` — which
-  `conform.lua` invokes as a bare command — plus `ols`/`odinfmt` and `zls`.
-- **Docker group.** Log out and back in (or `newgrp docker`) after the first run.
+  through `mason-tool-installer`. `fnlfmt` — which `conform.lua` invokes as a
+  bare command — plus `ols`/`odinfmt` and `zls` are what only the `lsp` step
+  provides.
 - **First nvim launch.** `lazyvim.json` enables 21 extras against omarchy-nvim's
   one, so the first `nvim` after deploying does a large plugin install.
+- **`.bashrc` blocks.** The herdr autostart, `ODIN_HOME` and the `~/lsp/bin`
+  PATH entry live in `# BEGIN … / # END …` blocks — the same marker format
+  Ansible's `blockinfile` used, so blocks left by the Ansible version are
+  replaced rather than duplicated, and the bare `export` lines it appended are
+  removed.
