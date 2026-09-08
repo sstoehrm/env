@@ -37,16 +37,29 @@ pkg() {
 
 # --- mise -----------------------------------------------------------------
 
-# mise_use <tool> <version-or-latest> — registers the tool globally if absent.
-# `mise use --global` is idempotent, but checking first keeps the output quiet
-# and avoids a network round trip on every run.
+# mise_use <tool> <version-or-latest> — make <version> the global one.
+#
+# Compares against the spec recorded in ~/.config/mise/config.toml (column 4 of
+# `mise ls`), which is exactly what `mise use --global` writes. Checking only
+# whether the tool is installed at *some* version would silently ignore a
+# version bump in this repo, which is the whole reason to pin one here.
 mise_use() {
   local tool="$1" version="${2:-latest}"
   have mise || die "mise not found — it ships with Omarchy; is this an Omarchy host?"
-  if mise ls --global --installed "$tool" 2>/dev/null | grep -q .; then
-    skip "mise: $tool already installed"
-    return 0
+
+  local row declared resolved
+  row="$(mise ls --global --installed "$tool" 2>/dev/null | head -n1)"
+
+  if [[ -n $row ]]; then
+    declared="$(awk '{print $4}' <<<"$row")"
+    resolved="$(awk '{print $2}' <<<"$row")"
+    if [[ ${declared:-$resolved} == "$version" || $resolved == "$version"* ]]; then
+      skip "mise: $tool@$version already global"
+      return 0
+    fi
+    info "mise: $tool is pinned to ${declared:-$resolved}, switching to $version"
   fi
+
   info "mise: installing $tool@$version"
   mise use --global "$tool@$version"
 }

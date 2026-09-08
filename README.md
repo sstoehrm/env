@@ -37,8 +37,8 @@ and the path is printed at the end of a run that touched anything.
 | Step | Preference key | Installs | How |
 | --- | --- | --- | --- |
 | `git-config` | `configure_git` | global `user.name` / `user.email` | `git config` |
-| `jvm` | `install_jvm` | Java temurin-21, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
-| `nodejs` | `install_nodejs` | Node 24 | mise |
+| `jvm` | `install_jvm` | Java temurin-25, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
+| `nodejs` | `install_nodejs` | Node 26 | mise |
 | `rust` | `install_rust` | rustup + stable toolchain | pacman |
 | `clojure` | `install_clojure` | rlwrap · Clojure CLI · babashka | pacman · mise · upstream installer |
 | `neovim` | `install_neovim` | fish, tectonic · Nerd Fonts (FiraCode, Hack, JetBrainsMono, Meslo) · mermaid-cli | pacman · npm |
@@ -152,6 +152,14 @@ a host without omarchy-nvim.
 
 ## Notes
 
+- **Reruns are safe and are the way to apply changes.** Every step is
+  idempotent: `pkg` skips installed packages, `install_file` compares content,
+  the `.bashrc` blocks are replaced in place, and the download steps check for
+  the binary first. `mise_use` compares against the version recorded in
+  `~/.config/mise/config.toml`, so bumping a pin here (say Java 21 → 25) takes
+  effect on the next run rather than being skipped as "already installed" —
+  which also means a stale pin will move a toolchain *backwards*, so keep the
+  versions in `install/jvm.sh` and `install/nodejs.sh` current.
 - **Mason overlap.** The Neovim config installs most of `~/lsp/`'s servers again
   through `mason-tool-installer`. `fnlfmt` — which `conform.lua` invokes as a
   bare command — plus `ols`/`odinfmt` and `zls` are what only the `lsp` step
