@@ -1,18 +1,14 @@
 ---
-- name: Gradle via SDKMAN
+- name: Gradle via mise
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
+    - name: Check whether Gradle is already registered with mise
+      shell: mise ls --global --installed gradle
+      register: mise_gradle
+      changed_when: false
+      failed_when: false
 
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
     - name: Install Gradle
-      shell: |
-        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
-        sdk install gradle
-      args:
-        executable: /bin/bash
+      command: mise use --global gradle@latest
+      when: mise_gradle.stdout | default('') | trim == ''

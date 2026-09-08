@@ -1,23 +1,17 @@
 ---
+# Omarchy installs VS Code from the AUR (visual-studio-code-bin) rather than
+# the OSS `code` package in [extra], because the Marketplace extensions below
+# are only served to the Microsoft-branded build.
 - name: VS Code
   hosts: localhost
 
   tasks:
-    - name: Install VS Code (Ubuntu/Debian via snap)
-      become: yes
-      become_method: sudo
-      community.general.snap:
-        name: code
-        classic: yes
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Install VS Code (Fedora via Flatpak)
-      become: yes
-      become_method: sudo
-      community.general.flatpak:
-        name: com.visualstudio.code
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
+    - name: Install VS Code from the AUR
+      # yay must not run as root; it escalates on its own, so this needs a live
+      # sudo timestamp (run `sudo -v` before the playbook). See README.
+      command: omarchy-pkg-aur-add visual-studio-code-bin
+      register: vscode_install
+      changed_when: "'is up to date' not in vscode_install.stdout"
 
     - name: Install VS Code extensions
       shell: |
@@ -25,10 +19,10 @@
         code --install-extension Prettier.prettier-vscode
         code --install-extension svelte.svelte-vscode
         code --install-extension vmware.vscode-boot-dev-pack
-        code --install-extension bierner.markdown-mermaid 
-        code --install-extension bpruitt-goddard.mermaid-markdown-syntax-highlighting 
-        code --install-extension ms-playwright.playwright 
-        code --install-extension bradlc.vscode-tailwindcss 
-        code --install-extension dbaeumer.vscode-eslint 
+        code --install-extension bierner.markdown-mermaid
+        code --install-extension bpruitt-goddard.mermaid-markdown-syntax-highlighting
+        code --install-extension ms-playwright.playwright
+        code --install-extension bradlc.vscode-tailwindcss
+        code --install-extension dbaeumer.vscode-eslint
       args:
         executable: /bin/bash

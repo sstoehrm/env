@@ -1,23 +1,13 @@
 ---
+# OpenCode is packaged in Omarchy's own pacman repo, so it upgrades with the
+# rest of the system instead of through the upstream curl installer.
 - name: OpenCode
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
-    - name: Check if OpenCode is already installed
-      stat:
-        path: "{{ user_home }}/.opencode/bin/opencode"
-      register: opencode_check
-      changed_when: false
-
     - name: Install OpenCode
-      shell: curl -fsSL https://opencode.ai/install | bash
-      args:
-        executable: /bin/bash
-      when: not opencode_check.stat.exists
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name: opencode
+        state: present

@@ -1,39 +1,27 @@
 ---
+# Omarchy treats ghostty as one of its approved terminals. Installing the
+# package through pacman first means `omarchy-install-terminal` finds it
+# present and skips its own sudo call, doing only the parts that matter here:
+# registering the desktop entry and making ghostty the default for
+# xdg-terminal-exec (Super+Return). It leaves ~/.config/ghostty alone when the
+# directory already exists, so the config from configs/soeren survives.
 - name: Ghostty
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
-    # Ubuntu/Debian — community-maintained .deb installer
-    # Per https://ghostty.org/docs/install/binary#ubuntu
-    # (Ghostty has no official upstream apt repo; this script downloads
-    # the latest .deb from mkasberg/ghostty-ubuntu and installs it.)
-    - name: Install ghostty via community installer (Ubuntu/Debian)
+    - name: Install Ghostty
       become: yes
       become_method: sudo
-      shell: |
-        curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh | /bin/bash
-      args:
-        executable: /bin/bash
-        creates: /usr/bin/ghostty
-      when: ansible_facts['os_family'] == "Debian"
-
-    # Fedora — community-maintained COPR repository
-    # Per https://ghostty.org/docs/install/binary#fedora
-    - name: Enable Ghostty COPR (Fedora)
-      become: yes
-      become_method: sudo
-      command: dnf copr enable -y scottames/ghostty
-      args:
-        creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo
-      when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Install ghostty (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
+      community.general.pacman:
         name: ghostty
         state: present
-      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Check the current xdg-terminal-exec default
+      command: cat {{ ansible_env.HOME }}/.config/xdg-terminals.list
+      register: xdg_terminals
+      changed_when: false
+      failed_when: false
+
+    - name: Register Ghostty as the Omarchy default terminal
+      command: omarchy-install-terminal ghostty
+      when: "'com.mitchellh.ghostty.desktop' not in (xdg_terminals.stdout | default(''))"

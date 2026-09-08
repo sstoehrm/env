@@ -1,16 +1,24 @@
 ---
+# Omarchy's `omarchy install dev-env rust` runs the rustup.rs shell installer;
+# on Arch the packaged rustup is the same tool kept current by pacman and
+# without a second copy under ~/.cargo, so this branch uses that instead.
 - name: Rust
   hosts: localhost
 
   tasks:
-    - name: Check if Rust is already installed
-      command: which rustup
-      register: rustup_check
+    - name: Install rustup
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name: rustup
+        state: present
+
+    - name: Check for an active toolchain
+      command: rustup show active-toolchain
+      register: rustup_toolchain
       changed_when: false
       failed_when: false
 
-    - name: Install Rust
-      shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      args:
-        executable: /bin/bash
-      when: rustup_check.rc != 0
+    - name: Install the stable toolchain
+      command: rustup default stable
+      when: rustup_toolchain.rc != 0

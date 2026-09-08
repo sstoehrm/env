@@ -1,20 +1,18 @@
 ---
-- name: Java via SDKMAN
+# Omarchy ships and activates mise, and `omarchy install dev-env java` uses it,
+# so the JVM comes from mise here rather than from a second version manager.
+- name: Java via mise
   hosts: localhost
   vars:
-    java_version: '21.0.10-tem'
+    java_version: 'temurin-21'
 
   tasks:
-    - name: Gather facts
-      setup:
+    - name: Check whether Java is already registered with mise
+      shell: mise ls --global --installed java
+      register: mise_java
+      changed_when: false
+      failed_when: false
 
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
     - name: Install Java
-      shell: |
-        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
-        sdk install java {{ java_version }}
-      args:
-        executable: /bin/bash
+      command: mise use --global java@{{ java_version }}
+      when: java_version not in (mise_java.stdout | default(''))

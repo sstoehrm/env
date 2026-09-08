@@ -1,18 +1,12 @@
 ---
-- name: VisualVM via SDKMAN
+# mise has no visualvm plugin; Arch [extra] packages it directly.
+- name: VisualVM
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
     - name: Install VisualVM
-      shell: |
-        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
-        sdk install visualvm
-      args:
-        executable: /bin/bash
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name: visualvm
+        state: present

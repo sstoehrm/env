@@ -3,21 +3,9 @@
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
-    - name: Download and install ast-grep
-      shell: |
-        cd /tmp
-        curl -LO https://github.com/ast-grep/ast-grep/releases/latest/download/app-x86_64-unknown-linux-gnu.zip
-        unzip -o app-x86_64-unknown-linux-gnu.zip
-        chmod +x ast-grep sg
-        mv ast-grep {{ user_home }}/.local/bin/ast-grep
-        mv sg {{ user_home }}/.local/bin/sg
-        rm -f app-x86_64-unknown-linux-gnu.zip
-      args:
-        executable: /bin/bash
+    - name: Install ast-grep
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name: ast-grep
+        state: present

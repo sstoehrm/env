@@ -1,35 +1,15 @@
 ---
-- name: Tmux
+# tmux itself ships with Omarchy; only tpm is missing, and the soeren tmux.conf
+# needs it for tmux-resurrect. No autostart block is added: Omarchy's
+# multiplexer is herdr, and both claiming the shell would nest them.
+- name: Tmux plugin manager
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
     - name: Set user variables
       set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
+        user_home: "{{ ansible_env.HOME }}"
 
-    - name: Install tmux (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      apt:
-        name: tmux
-        state: present
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Install tmux (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
-        name: tmux
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
-
-    # tpm (Tmux Plugin Manager) — required by tmux-resurrect / tmux-continuum
-    # which the soeren tmux.conf uses for session save/restore.
     - name: Install tpm (Tmux Plugin Manager)
       git:
         repo: https://github.com/tmux-plugins/tpm
@@ -37,15 +17,3 @@
         version: master
         update: no
         accept_hostkey: yes
-
-    - name: Add tmux autostart to .bashrc
-      blockinfile:
-        path: "{{ user_home }}/.bashrc"
-        marker: "# {mark} TMUX AUTOSTART"
-        block: |
-          # Auto-attach to (or create) the "main" tmux session for interactive shells
-          if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-              tmux new-session -A -s main
-          fi
-        create: yes
-        mode: '0644'

@@ -1,4 +1,6 @@
 ---
+# Omarchy ships lazydocker for terminal container management; Portainer is the
+# web UI, which it does not provide.
 - name: Portainer
   hosts: localhost
 

@@ -1,66 +1,23 @@
 ---
+# Omarchy ships ttf-jetbrains-mono-nerd-basic only; the remaining families the
+# terminal configs can be pointed at come from [extra].
 - name: Nerd Fonts
   hosts: localhost
-  vars:
-    nerdfonts_version: 'v3.4.0'
-    fonts_to_install:
-      - FiraCode
-      - Hack
-      - JetBrainsMono
-      - Meslo
 
   tasks:
-    - name: Gather facts
-      setup:
+    - name: Install Nerd Font families
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name:
+          - ttf-firacode-nerd
+          - ttf-hack-nerd
+          - ttf-jetbrains-mono-nerd
+          - ttf-meslo-nerd
+        state: present
 
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
-        fonts_dir: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts"
-
-    - name: Ensure fonts directory exists
-      file:
-        path: "{{ fonts_dir }}"
-        state: directory
-        mode: '0755'
-
-    - name: Check if Nerd Fonts are already installed
-      find:
-        paths: "{{ fonts_dir }}"
-        patterns: "*Nerd*"
-      register: nerdfonts_check
-
-    - name: Download and install Nerd Fonts
-      block:
-        - name: Download {{ item }} Nerd Font
-          get_url:
-            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_version }}/{{ item }}.zip"
-            dest: "/tmp/{{ item }}.zip"
-            mode: '0644'
-          loop: "{{ fonts_to_install }}"
-
-        - name: Extract {{ item }} Nerd Font
-          unarchive:
-            src: "/tmp/{{ item }}.zip"
-            dest: "{{ fonts_dir }}"
-            remote_src: yes
-          loop: "{{ fonts_to_install }}"
-
-        - name: Clean up downloaded archives
-          file:
-            path: "/tmp/{{ item }}.zip"
-            state: absent
-          loop: "{{ fonts_to_install }}"
-
-        - name: Update font cache
-          command: fc-cache -fv
-          changed_when: false
-
-      when: nerdfonts_check.matched == 0
-
-    - name: Verify Nerd Fonts installation
-      shell: fc-list | grep -i "nerd" | wc -l
+    - name: Count installed Nerd Fonts
+      shell: fc-list | grep -ci "nerd"
       register: nerdfonts_count
       changed_when: false
 

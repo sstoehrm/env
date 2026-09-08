@@ -1,26 +1,26 @@
 ---
+# Same approach as ghostty.yml: pacman installs the package (so
+# omarchy-install-terminal needs no sudo of its own) and Omarchy then wires up
+# the desktop entry and xdg-terminals.list. Note that whichever terminal
+# playbook runs last wins as the Super+Return default — main.yml runs kitty
+# before ghostty for that reason.
 - name: Kitty
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
-    # Ubuntu/Debian - distro package (universe)
-    - name: Install Kitty (Ubuntu/Debian)
+    - name: Install Kitty
       become: yes
       become_method: sudo
-      apt:
+      community.general.pacman:
         name: kitty
         state: present
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
 
-    # Fedora - distro package
-    - name: Install Kitty (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
-        name: kitty
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
+    - name: Check the current xdg-terminal-exec default
+      command: cat {{ ansible_env.HOME }}/.config/xdg-terminals.list
+      register: xdg_terminals
+      changed_when: false
+      failed_when: false
+
+    - name: Register Kitty as the Omarchy default terminal
+      command: omarchy-install-terminal kitty
+      when: "'kitty.desktop' not in (xdg_terminals.stdout | default(''))"

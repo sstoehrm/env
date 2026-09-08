@@ -1,18 +1,14 @@
 ---
-- name: Kotlin via SDKMAN
+- name: Kotlin via mise
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
+    - name: Check whether Kotlin is already registered with mise
+      shell: mise ls --global --installed kotlin
+      register: mise_kotlin
+      changed_when: false
+      failed_when: false
 
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
     - name: Install Kotlin
-      shell: |
-        source '{{ user_home }}/.sdkman/bin/sdkman-init.sh'
-        sdk install kotlin
-      args:
-        executable: /bin/bash
+      command: mise use --global kotlin@latest
+      when: mise_kotlin.stdout | default('') | trim == ''

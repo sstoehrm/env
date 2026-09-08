@@ -1,35 +1,26 @@
 #!/bin/bash
 
-# Detect the Linux distribution
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-else
+# Omarchy branch: this repo only targets Omarchy (Arch), so Ansible comes from
+# [extra]. The `ansible` package (not `ansible-core`) bundles
+# community.general, which the pacman tasks in these playbooks need.
+
+set -euo pipefail
+
+if [ ! -f /etc/os-release ]; then
     echo "Cannot detect distribution"
     exit 1
 fi
 
-echo "Detected distribution: $OS"
+. /etc/os-release
 
-# Install pipx based on distribution
-if command -v apt-get &> /dev/null; then
-    echo "Installing pipx via apt..."
-    sudo apt-get update
-    sudo apt-get install pipx -y
-elif command -v dnf &> /dev/null; then
-    echo "Installing pipx via dnf..."
-    sudo dnf install pipx -y
-else
-    echo "Unsupported package manager. Please install pipx manually."
+if [ "${ID:-}" != "omarchy" ]; then
+    echo "This branch targets Omarchy; /etc/os-release reports ID=${ID:-unknown}."
+    echo "Use the main branch for Debian/Ubuntu or Fedora."
     exit 1
 fi
 
-# Ensure pipx path is set up
-pipx ensurepath
-
-# Install ansible with dependencies
-echo "Installing Ansible via pipx..."
-pipx install --include-deps ansible
+echo "Installing Ansible..."
+omarchy-pkg-add ansible
 
 echo "Ansible installation complete!"
-echo "You may need to restart your shell or run: source ~/.bashrc"
+ansible --version | head -n1

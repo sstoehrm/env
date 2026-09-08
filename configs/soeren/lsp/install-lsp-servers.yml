@@ -4,11 +4,9 @@
   vars:
     lsp_base_dir: "{{ ansible_facts['env']['HOME'] }}/lsp"
     clojure_lsp_version: '2026.02.20-16.08.58'
-    lua_ls_version: '3.17.1'
     kotlin_lsp_version: '262.2310.0'
     ols_version: 'dev-2026-03'
     zls_version: '0.15.1'
-    stylua_version: 'v2.4.0'
     cljfmt_version: '0.16.3'
     ktlint_version: '1.8.0'
 
@@ -37,13 +35,11 @@
         - json-language-server
         # binary LSP servers
         - clojure-lsp
-        - lua-language-server
         - kotlin-lsp
         - ols
         - zls
         - jdtls
         # formatters
-        - stylua
         - cljfmt
         - ktlint
         - prettier
@@ -159,32 +155,17 @@
         state: link
         force: yes
 
-    - name: Check if lua-language-server is installed
-      stat:
-        path: "{{ lsp_base_dir }}/lua-language-server/bin/lua-language-server"
-      register: lua_ls_check
-
+    # Packaged on Arch, so the pinned tarball download is unnecessary here.
     - name: Install lua-language-server
-      block:
-        - name: Download lua-language-server
-          get_url:
-            url: "https://github.com/LuaLS/lua-language-server/releases/download/{{ lua_ls_version }}/lua-language-server-{{ lua_ls_version }}-linux-x64.tar.gz"
-            dest: "/tmp/lua-language-server.tar.gz"
-            mode: '0644'
-        - name: Extract lua-language-server
-          unarchive:
-            src: /tmp/lua-language-server.tar.gz
-            dest: "{{ lsp_base_dir }}/lua-language-server"
-            remote_src: yes
-        - name: Clean up
-          file:
-            path: /tmp/lua-language-server.tar.gz
-            state: absent
-      when: not lua_ls_check.stat.exists
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name: lua-language-server
+        state: present
 
     - name: Symlink lua-language-server
       file:
-        src: "{{ lsp_base_dir }}/lua-language-server/bin/lua-language-server"
+        src: /usr/bin/lua-language-server
         dest: "{{ lsp_base_dir }}/bin/lua-language-server"
         state: link
         force: yes
@@ -331,32 +312,17 @@
         state: link
         force: yes
 
-    - name: Check if stylua is installed
-      stat:
-        path: "{{ lsp_base_dir }}/stylua/stylua"
-      register: stylua_check
-
+    # Packaged on Arch, so the pinned zip download is unnecessary here.
     - name: Install stylua
-      block:
-        - name: Download stylua
-          get_url:
-            url: "https://github.com/JohnnyMorganz/StyLua/releases/download/{{ stylua_version }}/stylua-linux-x86_64.zip"
-            dest: "/tmp/stylua.zip"
-            mode: '0644'
-        - name: Extract stylua
-          unarchive:
-            src: /tmp/stylua.zip
-            dest: "{{ lsp_base_dir }}/stylua"
-            remote_src: yes
-        - name: Clean up
-          file:
-            path: /tmp/stylua.zip
-            state: absent
-      when: not stylua_check.stat.exists
+      become: yes
+      become_method: sudo
+      community.general.pacman:
+        name: stylua
+        state: present
 
     - name: Symlink stylua
       file:
-        src: "{{ lsp_base_dir }}/stylua/stylua"
+        src: /usr/bin/stylua
         dest: "{{ lsp_base_dir }}/bin/stylua"
         state: link
         force: yes

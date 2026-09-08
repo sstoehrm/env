@@ -1,91 +1,15 @@
 ---
+# Omarchy already installs docker, docker-buildx and docker-compose, but it
+# leaves the daemon disabled and the user outside the docker group. Only that
+# activation is left to do here.
 - name: Docker
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
     - name: Set user variables
       set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
+        user: "{{ ansible_user_id }}"
 
-    # Ubuntu/Debian - Official Docker Repository Installation
-    - name: Install prerequisites (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      apt:
-        name:
-          - ca-certificates
-          - curl
-        state: present
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Create directory for Docker GPG key (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: '0755'
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Download Docker's official GPG key (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      get_url:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        dest: /etc/apt/keyrings/docker.asc
-        mode: '0644'
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Add Docker repository (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      copy:
-        dest: /etc/apt/sources.list.d/docker.sources
-        content: |
-          Types: deb
-          URIs: https://download.docker.com/linux/ubuntu
-          Suites: {{ ansible_facts['distribution_release'] }}
-          Components: stable
-          Signed-By: /etc/apt/keyrings/docker.asc
-        mode: '0644'
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Update apt cache after adding Docker repository (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      apt:
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Install Docker Engine and plugins (Ubuntu/Debian)
-      become: yes
-      become_method: sudo
-      apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin
-        state: present
-      when: ansible_facts['os_family'] == "Debian"
-
-    # Fedora/RedHat Installation
-    - name: Install Docker Engine and Docker Compose (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
-        name:
-          - docker
-          - docker-compose
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
-
-    # Common tasks for both distros
     - name: Add user to docker group
       become: yes
       become_method: sudo
@@ -101,3 +25,7 @@
         name: docker
         state: started
         enabled: yes
+
+    - name: Note that the group change needs a new session
+      debug:
+        msg: "Log out and back in (or run `newgrp docker`) before using docker without sudo."

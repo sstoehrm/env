@@ -1,21 +1,12 @@
 ---
+# Omarchy ships Signal in no form; signal-desktop lives in Arch [extra].
 - name: Signal Desktop
   hosts: localhost
 
   tasks:
-    - name: Install Signal Desktop (Ubuntu/Debian via snap)
+    - name: Install Signal Desktop
       become: yes
       become_method: sudo
-      community.general.snap:
-        name:
-          - signal-desktop
-        classic: yes
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Install Signal Desktop (Fedora via Flatpak)
-      become: yes
-      become_method: sudo
-      community.general.flatpak:
-        name: org.signal.Signal
+      community.general.pacman:
+        name: signal-desktop
         state: present
-      when: ansible_facts['os_family'] == "RedHat"

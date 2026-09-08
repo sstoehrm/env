@@ -1,23 +1,12 @@
 ---
+# Matches `omarchy install dev-env clojure`, which pairs rlwrap with mise.
 - name: rlwrap
   hosts: localhost
 
   tasks:
-    - name: Install rlwrap for Clojure REPL (Ubuntu/Debian)
+    - name: Install rlwrap for the Clojure REPL
       become: yes
       become_method: sudo
-      apt:
-        name:
-          - rlwrap
+      community.general.pacman:
+        name: rlwrap
         state: present
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Install rlwrap for Clojure REPL (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
-        name:
-          - rlwrap
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"

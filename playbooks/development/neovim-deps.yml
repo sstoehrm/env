@@ -1,82 +1,36 @@
 ---
-- name: Neovim Dependencies
+# Omarchy's omarchy-nvim package provides Neovim plus a pre-built LazyVim
+# config, and base-devel, ripgrep, fzf, luarocks, imagemagick and wl-clipboard
+# are already on the system. What is left are the extras that config expects.
+- name: Neovim Extras
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
     - name: Set user variables
       set_fact:
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
+        user_home: "{{ ansible_env.HOME }}"
 
-    - name: Install LazyVim dependencies (Ubuntu/Debian)
+    - name: Install remaining Neovim dependencies
       become: yes
       become_method: sudo
-      apt:
+      community.general.pacman:
         name:
-          - build-essential
-          - ripgrep
-          - fzf
           - fish
-          - luarocks
-          - xclip
-          - imagemagick
-          - libmagickwand-dev
+          - tectonic   # LaTeX engine; upstream drop-sh installer not needed on Arch
         state: present
-        update_cache: yes
-      when: ansible_facts['os_family'] == "Debian"
 
-    - name: Install development tools group (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
-        name: '@Development Tools'
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Install LazyVim dependencies (Fedora)
-      become: yes
-      become_method: sudo
-      dnf:
-        name:
-          - ripgrep
-          - fzf
-          - fish
-          - luarocks
-          - xclip
-          - ImageMagick
-          - ImageMagick-devel
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Install Mermaid CLI (mmdc) via NVM's npm
-      shell: |
-        export NVM_DIR="{{ user_home }}/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        npm install -g @mermaid-js/mermaid-cli
+    - name: Install Mermaid CLI (mmdc) via mise-managed npm
+      shell: npm install -g @mermaid-js/mermaid-cli
       args:
         executable: /bin/bash
       register: mmdc_install
       changed_when: "'added' in mmdc_install.stdout or 'updated' in mmdc_install.stdout"
 
-    - name: Ensure ~/.local/bin exists
-      file:
-        path: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
-        state: directory
-        mode: "0755"
-
-    - name: Install Tectonic (LaTeX)
-      shell: curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
-      args:
-        chdir: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
-        creates: "{{ ansible_facts['env']['HOME'] }}/.local/bin/tectonic"
-
     - name: Install WezTerm terminfo
       shell: >
         tempfile=$(mktemp) &&
         curl -so "$tempfile" https://raw.githubusercontent.com/wez/wezterm/main/termwiz/data/wezterm.terminfo &&
-        tic -x -o {{ ansible_facts['env']['HOME'] }}/.terminfo "$tempfile" &&
+        tic -x -o {{ user_home }}/.terminfo "$tempfile" &&
         rm "$tempfile"
       args:
-        creates: "{{ ansible_facts['env']['HOME'] }}/.terminfo/w/wezterm"
+        creates: "{{ user_home }}/.terminfo/w/wezterm"

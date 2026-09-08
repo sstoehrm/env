@@ -1,40 +1,16 @@
 ---
-- name: Clojure CLI
+# `omarchy install dev-env clojure` is rlwrap + `mise use --global clojure`;
+# this mirrors it instead of the upstream linux-install.sh script.
+- name: Clojure CLI via mise
   hosts: localhost
 
   tasks:
-    - name: Gather facts
-      setup:
-
-    - name: Set user variables
-      set_fact:
-        user: "{{ ansible_facts['user_id'] }}"
-        user_home: "{{ ansible_facts['env']['HOME'] }}"
-        local_bin: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
-    - name: Ensure ~/.local/bin directory exists
-      file:
-        path: "{{ local_bin }}"
-        state: directory
-        mode: '0755'
-
-    - name: Check if Clojure CLI is already installed
-      stat:
-        path: "{{ local_bin }}/clojure"
-      register: clj_check
+    - name: Check whether Clojure is already registered with mise
+      shell: mise ls --global --installed clojure
+      register: mise_clojure
       changed_when: false
+      failed_when: false
 
-    - name: Download latest Clojure CLI installation script
-      get_url:
-        url: https://download.clojure.org/install/linux-install.sh
-        dest: /tmp/install-clojure.sh
-        mode: '0755'
-      when: not clj_check.stat.exists
-
-    - name: Install Clojure CLI to ~/.local/bin
-      shell: |
-        sed 's|/usr/local|{{ user_home }}/.local|g' /tmp/install-clojure.sh > /tmp/install-clojure-local.sh
-        chmod +x /tmp/install-clojure-local.sh
-        /tmp/install-clojure-local.sh
-      args:
-        executable: /bin/bash
-      when: not clj_check.stat.exists
+    - name: Install Clojure CLI
+      command: mise use --global clojure@latest
+      when: mise_clojure.stdout | default('') | trim == ''
