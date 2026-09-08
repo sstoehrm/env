@@ -156,22 +156,33 @@ github_latest_tag() {
 
 # extract_to <dest-dir> <url> — handles .zip, .tar.gz, .tar.xz.
 # Extra args after the url are passed to tar (e.g. --strip-components=1).
+#
+# Cleanup is explicit rather than a RETURN trap: such a trap is not local to
+# the function that sets it, so it stays armed and fires again when the sourced
+# step script finishes — by which point `local tmp` is gone and `set -u` kills
+# the run, blaming the `source` line in install.sh.
 extract_to() {
   local dest="$1" url="$2"; shift 2
-  local tmp
+  local tmp file rc=0
   tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' RETURN
-
-  local file="$tmp/${url##*/}"
-  curl -fsSL -o "$file" "$url"
+  file="$tmp/${url##*/}"
   mkdir -p "$dest"
 
-  case "$file" in
-    *.zip)     unzip -q -o "$file" -d "$dest" ;;
-    *.tar.gz|*.tgz) tar -xzf "$file" -C "$dest" "$@" ;;
-    *.tar.xz)  tar -xJf "$file" -C "$dest" "$@" ;;
-    *) die "don't know how to extract $file" ;;
-  esac
+  # The work runs inside a conditional so `set -e` cannot skip the cleanup.
+  if curl -fsSL -o "$file" "$url"; then
+    case "$file" in
+      *.zip)          unzip -q -o "$file" -d "$dest" || rc=$? ;;
+      *.tar.gz|*.tgz) tar -xzf "$file" -C "$dest" "$@" || rc=$? ;;
+      *.tar.xz)       tar -xJf "$file" -C "$dest" "$@" || rc=$? ;;
+      *) rc=1; warn "don't know how to extract ${file##*/}" ;;
+    esac
+  else
+    rc=1
+    warn "download failed: $url"
+  fi
+
+  rm -rf "$tmp"
+  ((rc == 0)) || die "could not install from $url"
 }
 
 # link_bin <target> <name> — symlink into the given bin dir (default ~/.local/bin).
