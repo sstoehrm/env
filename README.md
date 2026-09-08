@@ -47,7 +47,7 @@ and the path is printed at the end of a run that touched anything.
 | `gcolor3` | `install_gcolor3` | gcolor3 | pacman |
 | `signal` | `install_signal` | signal-desktop | pacman |
 | `simpleviz` | `install_simpleviz` | simpleviz (+ babashka) | upstream installer |
-| `skills` | `skills` (group) | the Claude Code plugins you select | `claude plugin` |
+| `skills` | `skills` (group) | the plugins you select, into Claude Code and Codex | `claude plugin` · `codex plugin` |
 | `configs` | `copy_soeren_configs` | herdr config · Neovim config | file copy |
 | `lsp` | `lsp` (group) | the LSP servers and formatters you select, into `~/lsp/bin` | npm · pacman · upstream releases |
 
@@ -55,7 +55,7 @@ Steps run in the order listed. `nodejs` deliberately comes before `lsp`, which
 needs mise's npm — the Ansible version had these the other way round, so on a
 fresh machine its LSP step would have run before Node existed.
 
-## Claude Code plugins
+## Agent plugins
 
 `"skills"` in `preferences.json` is a group, same shape as `"lsp"`: the step
 runs when any member is true.
@@ -67,12 +67,20 @@ runs when any member is true.
 }
 ```
 
-Both entries are plugin marketplaces on GitHub, each shipping one plugin of the
-same name. The step runs `claude plugin marketplace add <owner/repo>` and then
-`claude plugin install <plugin>@<marketplace> --scope user --yes` — `--yes`
-because a non-interactive run cannot answer the confirmation prompt. Restart
-Claude Code afterwards; the step says so only when it actually installed
-something.
+Both entries are plugin marketplaces on GitHub carrying manifests for both
+agents — `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`
+— each shipping one plugin of the same name. Every enabled entry goes into
+whichever agents are present, so a machine with only one of them still works:
+
+| | Claude Code | Codex |
+| --- | --- | --- |
+| add marketplace | `claude plugin marketplace add <owner/repo>` | `codex plugin marketplace add <owner/repo>` |
+| install plugin | `claude plugin install <p>@<m> --scope user --yes` | `codex plugin add <p>@<m>` |
+| already installed? | `plugin list --json` → `.[].id` (`.name` is null) | `plugin list --json` → `.installed[].pluginId` |
+
+`--yes` on the Claude side because a non-interactive run cannot answer the
+confirmation prompt. Restart the agents afterwards; the step says so only when
+it actually installed something.
 
 To add another, extend `SKILL_PLUGINS` in `install/skills.sh` and add the key to
 the group. The marketplace name is taken from the repo name, and the plugin name
