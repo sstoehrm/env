@@ -6,10 +6,6 @@
   hosts: localhost
 
   tasks:
-    - name: Set user variables
-      set_fact:
-        user_home: "{{ ansible_env.HOME }}"
-
     - name: Install remaining Neovim dependencies
       become: yes
       become_method: sudo
@@ -25,12 +21,3 @@
         executable: /bin/bash
       register: mmdc_install
       changed_when: "'added' in mmdc_install.stdout or 'updated' in mmdc_install.stdout"
-
-    - name: Install WezTerm terminfo
-      shell: >
-        tempfile=$(mktemp) &&
-        curl -so "$tempfile" https://raw.githubusercontent.com/wez/wezterm/main/termwiz/data/wezterm.terminfo &&
-        tic -x -o {{ user_home }}/.terminfo "$tempfile" &&
-        rm "$tempfile"
-      args:
-        creates: "{{ user_home }}/.terminfo/w/wezterm"

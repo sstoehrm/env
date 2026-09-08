@@ -6,20 +6,12 @@
   "git_user_email": "your.email@example.com",
   "install_jvm": true,
   "install_nodejs": true,
-  "install_vscode": true,
-  "install_opencode": true,
+  "install_rust": false,
   "install_neovim": true,
   "install_docker": true,
   "install_ast_grep": true,
-  "install_tmux": true,
-  "install_zellij": false,
-  "install_wezterm": true,
-  "install_kitty": true,
-  "install_ghostty": true,
+  "install_herdr": true,
   "install_clojure": false,
   "install_game_dev": false,
-  "install_speedcrunch": false,
-  "install_gcolor3": false,
-  "install_rust": false,
-  "install_doom_emacs": false
+  "install_gcolor3": false
 }

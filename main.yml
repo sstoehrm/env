@@ -47,8 +47,7 @@
       when: not (lookup('file', '/etc/os-release', errors='ignore') | default('', true)) is search('(?m)^ID=omarchy$')
 
     # Every lookup carries a default so a preferences.json carried over from the
-    # main branch (which has keys this branch dropped, and lacks none of these)
-    # still runs.
+    # main branch (which has keys this branch dropped) still runs.
     - name: Set preferences as facts
       set_fact:
         should_install_signal: "{{ prefs.install_signal | default(false) | bool }}"
@@ -58,22 +57,14 @@
         git_configured_email: "{{ prefs.git_user_email | default('') }}"
         should_install_jvm: "{{ prefs.install_jvm | default(false) | bool }}"
         should_install_nodejs: "{{ prefs.install_nodejs | default(false) | bool }}"
-        should_install_vscode: "{{ prefs.install_vscode | default(false) | bool }}"
-        should_install_opencode: "{{ prefs.install_opencode | default(false) | bool }}"
+        should_install_rust: "{{ prefs.install_rust | default(false) | bool }}"
         should_install_neovim: "{{ prefs.install_neovim | default(false) | bool }}"
         should_install_docker: "{{ prefs.install_docker | default(false) | bool }}"
         should_install_ast_grep: "{{ prefs.install_ast_grep | default(false) | bool }}"
-        should_install_tmux: "{{ prefs.install_tmux | default(false) | bool }}"
-        should_install_zellij: "{{ prefs.install_zellij | default(false) | bool }}"
-        should_install_wezterm: "{{ prefs.install_wezterm | default(false) | bool }}"
-        should_install_kitty: "{{ prefs.install_kitty | default(false) | bool }}"
-        should_install_ghostty: "{{ prefs.install_ghostty | default(false) | bool }}"
+        should_install_herdr: "{{ prefs.install_herdr | default(false) | bool }}"
         should_install_clojure: "{{ prefs.install_clojure | default(false) | bool }}"
         should_install_game_dev: "{{ prefs.install_game_dev | default(false) | bool }}"
-        should_install_speedcrunch: "{{ prefs.install_speedcrunch | default(false) | bool }}"
         should_install_gcolor3: "{{ prefs.install_gcolor3 | default(false) | bool }}"
-        should_install_rust: "{{ prefs.install_rust | default(false) | bool }}"
-        should_install_doom_emacs: "{{ prefs.install_doom_emacs | default(false) | bool }}"
         cacheable: true
 
     - name: Display loaded preferences
@@ -81,43 +72,37 @@
         msg:
           - "Loaded preferences:"
           - "  Signal: {{ should_install_signal }}"
-          - "  Copy configs: {{ should_copy_soeren_configs }}"
+          - "  Copy configs (herdr, Neovim, LSP servers): {{ should_copy_soeren_configs }}"
           - "  Git config: {{ should_configure_git }}"
           - "  JVM (mise): {{ should_install_jvm }}"
           - "  Node.js (mise): {{ should_install_nodejs }}"
-          - "  VS Code: {{ should_install_vscode }}"
-          - "  OpenCode: {{ should_install_opencode }}"
+          - "  Rust: {{ should_install_rust }}"
           - "  Neovim extras: {{ should_install_neovim }}"
           - "  Docker activation: {{ should_install_docker }}"
           - "  ast-grep: {{ should_install_ast_grep }}"
-          - "  tmux plugins (tpm): {{ should_install_tmux }}"
-          - "  Zellij: {{ should_install_zellij }}"
-          - "  WezTerm: {{ should_install_wezterm }}"
-          - "  Kitty: {{ should_install_kitty }}"
-          - "  Ghostty: {{ should_install_ghostty }}"
+          - "  Herdr autostart: {{ should_install_herdr }}"
           - "  Clojure: {{ should_install_clojure }}"
           - "  Game dev: {{ should_install_game_dev }}"
-          - "  SpeedCrunch: {{ should_install_speedcrunch }}"
           - "  Gcolor3: {{ should_install_gcolor3 }}"
-          - "  Rust: {{ should_install_rust }}"
-          - "  Doom Emacs: {{ should_install_doom_emacs }}"
 
 # Applications Omarchy does not ship
 - import_playbook: playbooks/base/signal.yml
   tags: [base, signal]
   when: hostvars['localhost']['should_install_signal'] | default(false)
 
-# Configuration files
-# Runs before the terminal playbooks on purpose: omarchy-install-terminal only
-# seeds ~/.config/<terminal> when that directory is missing, so copying first
-# keeps these configs authoritative.
+# Configuration files. Deploys the herdr config and the Neovim config on top of
+# omarchy-nvim; see configs/soeren/copy-config-soeren.yml for what that replaces.
 - import_playbook: configs/soeren/copy-config-soeren.yml
   tags: [base, configs]
   when: hostvars['localhost']['should_copy_soeren_configs'] | default(false)
 
+# LSP servers and formatters into ~/lsp/bin. This used to be gated behind Doom
+# Emacs; with Doom gone it follows the configs flag. Note that the Neovim config
+# installs most of the same servers through Mason — fnlfmt (used by conform),
+# ols/odinfmt and zls are the ones only this playbook provides.
 - import_playbook: configs/soeren/lsp/install-lsp-servers.yml
   tags: [base, lsp]
-  when: hostvars['localhost']['should_copy_soeren_configs'] | default(false) and hostvars['localhost']['should_install_doom_emacs'] | default(false)
+  when: hostvars['localhost']['should_copy_soeren_configs'] | default(false)
 
 # Git configuration
 - import_playbook: playbooks/development/git-config.yml
@@ -154,21 +139,8 @@
   tags: [base, rust]
   when: hostvars['localhost']['should_install_rust'] | default(false)
 
-# IDEs and editors
-- import_playbook: playbooks/development/vscode.yml
-  tags: [base, vscode]
-  when: hostvars['localhost']['should_install_vscode'] | default(false)
-
-- import_playbook: playbooks/development/vscode-plugins-soeren.yml
-  tags: [base, vscode-plugins]
-  when: hostvars['localhost']['should_install_vscode'] | default(false)
-
-- import_playbook: playbooks/development/opencode.yml
-  tags: [base, opencode]
-  when: hostvars['localhost']['should_install_opencode'] | default(false)
-
-# Neovim itself and the LazyVim config come from Omarchy's omarchy-nvim
-# package; only the extras that config expects are installed here.
+# Neovim itself and the LazyVim base come from Omarchy's omarchy-nvim package;
+# only the extras that config expects are installed here.
 - import_playbook: playbooks/development/neovim-deps.yml
   tags: [base, neovim-deps]
   when: hostvars['localhost']['should_install_neovim'] | default(false)
@@ -191,27 +163,11 @@
   tags: [base, ast-grep]
   when: hostvars['localhost']['should_install_ast_grep'] | default(false)
 
-- import_playbook: playbooks/development/tmux.yml
-  tags: [base, tmux]
-  when: hostvars['localhost']['should_install_tmux'] | default(false)
-
-- import_playbook: playbooks/development/zellij.yml
-  tags: [base, zellij]
-  when: hostvars['localhost']['should_install_zellij'] | default(false)
-
-# Terminals. Kitty runs before Ghostty because omarchy-install-terminal rewrites
-# ~/.config/xdg-terminals.list, so the last one enabled becomes Super+Return.
-- import_playbook: playbooks/development/wezterm.yml
-  tags: [base, wezterm]
-  when: hostvars['localhost']['should_install_wezterm'] | default(false)
-
-- import_playbook: playbooks/development/kitty.yml
-  tags: [base, kitty]
-  when: hostvars['localhost']['should_install_kitty'] | default(false)
-
-- import_playbook: playbooks/development/ghostty.yml
-  tags: [base, ghostty]
-  when: hostvars['localhost']['should_install_ghostty'] | default(false)
+# Herdr is packaged by Omarchy; this only makes it claim interactive shells,
+# in place of tmux.
+- import_playbook: playbooks/development/herdr.yml
+  tags: [base, herdr]
+  when: hostvars['localhost']['should_install_herdr'] | default(false)
 
 # Clojure
 - import_playbook: playbooks/development/rlwrap.yml
@@ -236,19 +192,6 @@
   when: hostvars['localhost']['should_install_game_dev'] | default(false)
 
 # Applications
-- import_playbook: playbooks/applications/speedcrunch.yml
-  tags: [base, speedcrunch]
-  when: hostvars['localhost']['should_install_speedcrunch'] | default(false)
-
 - import_playbook: playbooks/applications/gcolor3.yml
   tags: [base, gcolor3]
   when: hostvars['localhost']['should_install_gcolor3'] | default(false)
-
-# Doom Emacs
-- import_playbook: playbooks/development/doom-emacs.yml
-  tags: [base, doom-emacs]
-  when: hostvars['localhost']['should_install_doom_emacs'] | default(false)
-
-- import_playbook: playbooks/development/doom-emacs-deps.yml
-  tags: [base, doom-emacs-deps]
-  when: hostvars['localhost']['should_install_doom_emacs'] | default(false)
