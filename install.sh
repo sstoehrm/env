@@ -36,6 +36,7 @@ STEPS=(
   "simpleviz:install_simpleviz"
   "skills:skills"
   "configs:copy_soeren_configs"
+  "monitors:monitor_layout"
   "lsp:lsp"
 )
 
@@ -62,10 +63,12 @@ require_prefs() {
 #
 # A key whose value is an object is a group (see "lsp"): it counts as enabled
 # when any member is true, so the step runs and then gates its own parts.
+# A string key (see "monitor_layout") counts as enabled when it is non-empty.
 pref() {
   jq -r --arg k "$1" '
     if (has($k) | not) then "false"
     elif (.[$k] | type) == "object" then ((.[$k] | any(.[]; . == true)) | tostring)
+    elif (.[$k] | type) == "string" then ((.[$k] != "") | tostring)
     else (.[$k] | tostring)
     end' "$PREFS"
 }

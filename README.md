@@ -49,6 +49,7 @@ and the path is printed at the end of a run that touched anything.
 | `simpleviz` | `install_simpleviz` | simpleviz (+ babashka) | upstream installer |
 | `skills` | `skills` (group) | the plugins you select, into Claude Code and Codex | `claude plugin` · `codex plugin` |
 | `configs` | `copy_soeren_configs` | herdr config · Neovim config | file copy |
+| `monitors` | `monitor_layout` | the named monitor layout as `~/.config/hypr/monitors.lua` | file copy |
 | `lsp` | `lsp` (group) | the LSP servers and formatters you select, into `~/lsp/bin` | npm · pacman · upstream releases |
 
 Steps run in the order listed. `nodejs` deliberately comes before `lsp`, which
@@ -90,6 +91,21 @@ is given separately rather than assumed to match.
 release into `~/.simpleviz` with a launcher at `~/.local/bin/simpleviz`. It needs
 babashka >= 1.3.0, so that step installs babashka itself rather than relying on
 the `clojure` step being enabled.
+
+## Monitor layouts
+
+`"monitor_layout"` names one file in `configs/soeren/hypr/monitors/` (without
+`.lua`); the step copies it over `~/.config/hypr/monitors.lua`, which Hyprland
+reloads on save. It is empty in `preferences.example.json`, so the step is off unless a layout
+is named; empty keeps Omarchy's auto-detected layout.
+
+| Layout | Setup |
+| --- | --- |
+| `main-setup` | Dell AW2721D left, Samsung LC27G7xT (main) right, both 1440p@144 at scale 1.25 |
+
+Monitors are matched by `desc:` rather than port name, so a layout survives
+moving a cable. Use scales that divide the resolution evenly — for 2560x1440
+that is 1.25 or 1.6, not 1.5, which Hyprland would round to something else.
 
 ## Selecting LSP servers
 
