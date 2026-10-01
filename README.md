@@ -37,6 +37,7 @@ and the path is printed at the end of a run that touched anything.
 | Step | Preference key | Installs | How |
 | --- | --- | --- | --- |
 | `git-config` | `configure_git` | global `user.name` / `user.email` | `git config` |
+| `ssh-key` | `setup_ssh_key` | `~/.ssh/id_ed25519`, added to GitHub | `ssh-keygen` · `gh ssh-key add` |
 | `jvm` | `install_jvm` | Java temurin-25, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
 | `nodejs` | `install_nodejs` | Node 26 | mise |
 | `rust` | `install_rust` | rustup + stable toolchain | pacman |
@@ -92,6 +93,14 @@ is given separately rather than assumed to match.
 release into `~/.simpleviz` with a launcher at `~/.local/bin/simpleviz`. It needs
 babashka >= 1.3.0, so that step installs babashka itself rather than relying on
 the `clojure` step being enabled.
+
+## SSH key
+
+The `ssh-key` step creates `~/.ssh/id_ed25519` if there is none — never
+replacing one that exists — with `git_user_email` as the comment. `ssh-keygen`
+runs interactively, so it asks for a passphrase. If `gh` is logged in, the
+public key is then added to GitHub under the machine's hostname, unless GitHub
+already has it. Without `gh` the step prints the public key instead.
 
 ## Monitor layouts
 
