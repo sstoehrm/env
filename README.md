@@ -48,6 +48,7 @@ and the path is printed at the end of a run that touched anything.
 | `signal` | `install_signal` | signal-desktop | pacman |
 | `simpleviz` | `install_simpleviz` | simpleviz (+ babashka) | upstream installer |
 | `skills` | `skills` (group) | the plugins you select, into Claude Code and Codex | `claude plugin` · `codex plugin` |
+| `theme` | `install_theme` | Omarchy theme `oxocarbon` · background `BG44.jpg` | `omarchy-theme-install` · `omarchy-theme-set` · `omarchy-theme-bg-set` |
 | `configs` | `copy_soeren_configs` | herdr config · Neovim config | file copy |
 | `monitors` | `monitor_layout` | the named monitor layout as `~/.config/hypr/monitors.lua` | file copy |
 | `lsp` | `lsp` (group) | the LSP servers and formatters you select, into `~/lsp/bin` | npm · pacman · upstream releases |
@@ -176,6 +177,22 @@ omarchy-setup-security-sudoless-docker   # Setup > Security > Sudoless Docker
 ```
 
 Portainer went with it: it assumed a user-reachable socket.
+
+## The Omarchy theme
+
+The `theme` step clones
+[omarchy-oxocarbon-theme](https://github.com/HANCORE-linux/omarchy-oxocarbon-theme)
+into `~/.config/omarchy/themes/oxocarbon`, applies it, and sets `BG44.jpg` from
+its `backgrounds/` as the wallpaper. Name, repo and background are variables at
+the top of `install/theme.sh`.
+
+`omarchy-theme-set` advances to the next background in the theme's folder, so
+the background is set after it. `omarchy theme bg next` moves off `BG44.jpg`
+until the next `./install.sh theme`. An existing clone is left alone; update it
+with `omarchy theme update`.
+
+Neovim does not follow the Omarchy theme — see below. Its colorscheme is pinned
+in `configs/soeren/nvim/lua/plugins/theme.lua` and deployed by `configs`.
 
 ## The Neovim config
 

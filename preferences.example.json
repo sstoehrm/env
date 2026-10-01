@@ -15,6 +15,7 @@
   "install_simpleviz": true,
   "_monitor_layout": "Name of a file in configs/soeren/hypr/monitors/ (without .lua), deployed to ~/.config/hypr/monitors.lua. Empty to leave monitors alone.",
   "monitor_layout": "",
+  "install_theme": true,
   "_skills": "Claude Code plugins from GitHub marketplaces. Installed for the user scope; restart Claude Code afterwards. The step runs when any entry is true.",
   "skills": {
     "blend": true,

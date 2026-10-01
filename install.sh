@@ -35,6 +35,7 @@ STEPS=(
   "signal:install_signal"
   "simpleviz:install_simpleviz"
   "skills:skills"
+  "theme:install_theme"
   "configs:copy_soeren_configs"
   "monitors:monitor_layout"
   "lsp:lsp"
