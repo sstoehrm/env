@@ -111,11 +111,17 @@ is named; empty keeps Omarchy's auto-detected layout.
 
 | Layout | Setup |
 | --- | --- |
-| `main-setup` | Dell AW2721D left, Samsung LC27G7xT (main) right, both 1440p@144 at scale 1.25 |
+| `main-setup` | Dell AW2721D left, Samsung LC27G7xT (main) right, both 1440p@144 at scale 1 |
 
 Monitors are matched by `desc:` rather than port name, so a layout survives
 moving a cable. Use scales that divide the resolution evenly — for 2560x1440
 that is 1.25 or 1.6, not 1.5, which Hyprland would round to something else.
+
+To enlarge text instead of scaling the whole desktop, set
+`"display_text_size"` in px. The same step passes it to
+`omarchy display text size`, which sets the Omarchy shell, GTK apps and the
+terminal font together: 12 is the default (9pt in the terminal), 16 gives a
+12pt terminal font.
 
 ## Selecting LSP servers
 
