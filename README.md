@@ -112,9 +112,10 @@ also takes a lifetime (`1h`) or `confirm` if you want less than that.
 `environment.d` rather than `.bashrc`: it feeds the systemd user manager, which
 the uwsm-run Hyprland and everything it launches inherit, so GUI apps see the
 agent too. A `.bashrc` export would also overwrite the agent sshd forwards into
-an incoming SSH session. The step reloads the user manager, so new terminals
-pick it up at once; already-open ones need
-`export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket`.
+an incoming SSH session. Hyprland reads it once at login and every app
+it launches inherits Hyprland's environment, so it takes effect from the next
+login; until then, `export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket` in
+the shell that needs it.
 
 Not gnome-keyring's `gcr-ssh-agent`, although Omarchy ships it: it remembers
 passphrases by saving them in the default keyring, and Omarchy creates that

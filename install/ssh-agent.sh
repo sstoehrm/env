@@ -25,15 +25,11 @@ fi
 sock="$XDG_RUNTIME_DIR/ssh-agent.socket"
 install_file "$CONFIGS_DIR/environment.d/ssh-agent.conf" "$HOME/.config/environment.d/ssh-agent.conf"
 
-# daemon-reload reruns the environment generators, so terminals opened from
-# now on get the variable without logging out.
-if [[ "$(systemctl --user show-environment)" != *"SSH_AUTH_SOCK=$sock"* ]]; then
-  systemctl --user daemon-reload
-  if [[ "$(systemctl --user show-environment)" != *"SSH_AUTH_SOCK=$sock"* ]]; then
-    systemctl --user set-environment "SSH_AUTH_SOCK=$sock"
-  fi
-  ok "SSH_AUTH_SOCK set for new processes"
-  info "already-open terminals: export SSH_AUTH_SOCK=$sock (or open a new one)"
+# Hyprland reads environment.d once, at login, and every app it launches
+# inherits Hyprland's environment, so this applies from the next login.
+if [[ ${SSH_AUTH_SOCK:-} != "$sock" && -z ${SSH_CONNECTION:-} ]]; then
+  info "log out and back in for SSH_AUTH_SOCK to reach the session; until then:"
+  info "  export SSH_AUTH_SOCK=$sock"
 fi
 
 # --- ~/.ssh/config --------------------------------------------------------
