@@ -37,6 +37,8 @@ and the path is printed at the end of a run that touched anything.
 | Step | Preference key | Installs | How |
 | --- | --- | --- | --- |
 | `git-config` | `configure_git` | global `user.name` / `user.email` | `git config` |
+| `ssh-key` | `setup_ssh_key` | `~/.ssh/id_ed25519`, added to GitHub | `ssh-keygen` · `gh ssh-key add` |
+
 | `ssh-agent` | `configure_ssh_agent` | OpenSSH agent, `SSH_AUTH_SOCK`, `AddKeysToAgent yes` | `systemctl --user` · file copy · `~/.ssh/config` block |
 | `jvm` | `install_jvm` | Java temurin-25, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
 | `nodejs` | `install_nodejs` | Node 26 | mise |
@@ -94,6 +96,14 @@ release into `~/.simpleviz` with a launcher at `~/.local/bin/simpleviz`. It need
 babashka >= 1.3.0, so that step installs babashka itself rather than relying on
 the `clojure` step being enabled.
 
+## SSH key
+
+The `ssh-key` step creates `~/.ssh/id_ed25519` if there is none — never
+replacing one that exists — with `git_user_email` as the comment. `ssh-keygen`
+runs interactively, so it asks for a passphrase. If `gh` is logged in, the
+public key is then added to GitHub under the machine's hostname, unless GitHub
+already has it. Without `gh` the step prints the public key instead.
+
 ## The SSH agent
 
 The `ssh-agent` step makes ssh ask for a key's passphrase once per login
@@ -131,11 +141,17 @@ is named; empty keeps Omarchy's auto-detected layout.
 
 | Layout | Setup |
 | --- | --- |
-| `main-setup` | Dell AW2721D left, Samsung LC27G7xT (main) right, both 1440p@144 at scale 1.25 |
+| `main-setup` | Dell AW2721D left, Samsung LC27G7xT (main) right, both 1440p@144 at scale 1 |
 
 Monitors are matched by `desc:` rather than port name, so a layout survives
 moving a cable. Use scales that divide the resolution evenly — for 2560x1440
 that is 1.25 or 1.6, not 1.5, which Hyprland would round to something else.
+
+To enlarge text instead of scaling the whole desktop, set
+`"display_text_size"` in px. The same step passes it to
+`omarchy display text size`, which sets the Omarchy shell, GTK apps and the
+terminal font together: 12 is the default (9pt in the terminal), 16 gives a
+12pt terminal font.
 
 ## Selecting LSP servers
 
