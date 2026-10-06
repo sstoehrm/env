@@ -24,6 +24,7 @@ source "$INSTALL_DIR/helpers.sh"
 # needs mise's npm), and configs land before anything that reads them.
 STEPS=(
   "git-config:configure_git"
+  "ssh-agent:configure_ssh_agent"
   "jvm:install_jvm"
   "nodejs:install_nodejs"
   "rust:install_rust"

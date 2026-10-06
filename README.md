@@ -37,6 +37,7 @@ and the path is printed at the end of a run that touched anything.
 | Step | Preference key | Installs | How |
 | --- | --- | --- | --- |
 | `git-config` | `configure_git` | global `user.name` / `user.email` | `git config` |
+| `ssh-agent` | `configure_ssh_agent` | OpenSSH agent, `SSH_AUTH_SOCK`, `AddKeysToAgent yes` | `systemctl --user` · file copy · `~/.ssh/config` block |
 | `jvm` | `install_jvm` | Java temurin-25, Kotlin, Maven, Gradle · VisualVM | mise · pacman |
 | `nodejs` | `install_nodejs` | Node 26 | mise |
 | `rust` | `install_rust` | rustup + stable toolchain | pacman |
@@ -92,6 +93,33 @@ is given separately rather than assumed to match.
 release into `~/.simpleviz` with a launcher at `~/.local/bin/simpleviz`. It needs
 babashka >= 1.3.0, so that step installs babashka itself rather than relying on
 the `clojure` step being enabled.
+
+## The SSH agent
+
+The `ssh-agent` step makes ssh ask for a key's passphrase once per login
+instead of on every use:
+
+| Piece | Where |
+| --- | --- |
+| agent | `ssh-agent.socket`, the user unit openssh ships, enabled |
+| `SSH_AUTH_SOCK` | `~/.config/environment.d/ssh-agent.conf` |
+| cache on first use | `AddKeysToAgent yes` in a `# BEGIN SSH AGENT` block at the end of `~/.ssh/config` |
+
+The first `ssh`/`git` that needs the key prompts for the passphrase and hands
+the decrypted key to the agent, which holds it until logout. `AddKeysToAgent`
+also takes a lifetime (`1h`) or `confirm` if you want less than that.
+
+`environment.d` rather than `.bashrc`: it feeds the systemd user manager, which
+the uwsm-run Hyprland and everything it launches inherit, so GUI apps see the
+agent too. A `.bashrc` export would also overwrite the agent sshd forwards into
+an incoming SSH session. The step reloads the user manager, so new terminals
+pick it up at once; already-open ones need
+`export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket`.
+
+Not gnome-keyring's `gcr-ssh-agent`, although Omarchy ships it: it remembers
+passphrases by saving them in the default keyring, and Omarchy creates that
+keyring **unencrypted** (`install/user/default-keyring.sh`), so the passphrase
+would end up on disk in plain text — no better than a key without one.
 
 ## Monitor layouts
 

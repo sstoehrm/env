@@ -4,6 +4,7 @@
   "configure_git": true,
   "git_user_name": "Your Name",
   "git_user_email": "your.email@example.com",
+  "configure_ssh_agent": true,
   "install_jvm": true,
   "install_nodejs": true,
   "install_rust": false,
