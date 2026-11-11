@@ -1,0 +1,22 @@
+# Everything setup.sh generates stays local. It writes these to
+# /etc/caddy/gateway-bos and /var/lib/gateway-bos-authelia, never in here;
+# this catches copies or a test run pointed at this folder.
+
+# certificate and key (gen-cert.sh)
+*.crt
+*.key
+*.pem
+
+# Authelia secrets, logins and generated config
+secrets/
+users
+users_database.yml
+configuration.yml
+
+# Authelia data: database (sessions, TOTP, bans) and one-time codes
+*.sqlite3
+notification.txt
+
+# generated Caddyfile and its backups
+Caddyfile
+Caddyfile.bak.*

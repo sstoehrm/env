@@ -266,6 +266,34 @@ machine over SSH and inside herdr panes. This repo's `options.lua` replaces that
 file, so the call was added here, wrapped in `pcall` so the config still loads on
 a host without omarchy-nvim.
 
+## The simpleviz gateway
+
+`configs/soeren/gateway-bos/` opens every simpleviz instance to the LAN over
+HTTPS, behind one Authelia login. It is not an install step: it needs sudo, a
+password prompt and Docker, so run it yourself:
+
+```bash
+configs/soeren/gateway-bos/setup.sh
+```
+
+It installs Caddy (`omarchy-pkg-add caddy`), makes a self-signed certificate,
+starts Authelia in a container published on `127.0.0.1` only, and maps
+simpleviz port `7370-7469` to `https://bos.home.arpa:8370-8469`, with the login
+at `https://bos.home.arpa:8360`. Logins: `set-auth.sh <user>`. URLs:
+`gateway-servers.sh`.
+
+It keeps Omarchy's Docker stance: it does not add you to the `docker` group and
+goes through `sudo docker` unless you took the sudoless opt-in. It does enable
+`docker.service` at boot, because with only `docker.socket` the Authelia
+container would stay down after a reboot until something touched Docker, and
+the gateway would refuse every request. Omarchy's `ufw` blocks the ports from
+other hosts until you allow them; the script prints the rule.
+
+`bos.home.arpa` is a home-network name (RFC 8375) that never resolves publicly.
+The script adds it to this machine's `/etc/hosts`; every other client needs the
+same line pointing at this machine's LAN IP, and should trust
+`/etc/caddy/gateway-bos/gateway.crt`.
+
 ## Notes
 
 - **Reruns are safe and are the way to apply changes.** Every step is
